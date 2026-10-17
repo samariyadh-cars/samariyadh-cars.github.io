@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'esamasade2@gmail.com';
+    }
+    // السيارات وإعدادات الموقع: يشوفها الكل، وتعدّل من المدير فقط
+    match /cars/{id}   { allow read: if true; allow write: if isAdmin(); }
+    match /site/{id}   { allow read: if true; allow write: if isAdmin(); }
+    // طلبات العملاء من الموقع: أي زائر يرسل، والمدير فقط يقرأ
+    match /leads/{id}  { allow create: if true; allow read, update, delete: if isAdmin(); }
+    // باقي لوحة التحكم: للمدير فقط
+    match /{document=**} { allow read, write: if isAdmin(); }
+  }
+}
