@@ -1,0 +1,41 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>دخول الإدارة</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,Tahoma,sans-serif;background:#0b1f3a;color:#0b1f3a}
+.card{background:#fff;border-radius:16px;padding:28px;width:min(360px,92vw);box-shadow:0 10px 40px #0004}
+h1{font-size:20px;margin:0 0 16px}input{width:100%;box-sizing:border-box;padding:12px;margin:6px 0;border:1px solid #ccd;border-radius:10px;font-size:16px}
+button{width:100%;padding:12px;margin-top:10px;border:0;border-radius:10px;background:#1a56db;color:#fff;font-size:16px;cursor:pointer}
+#msg{margin-top:14px;font-size:15px;line-height:1.7;white-space:pre-line}.ok{color:#0a7a3d}.err{color:#c0261b}
+</style></head><body>
+<div class="card">
+  <h1>دخول لوحة التحكم</h1>
+  <div id="loginBox">
+    <input id="em" type="email" placeholder="الإيميل" value="esamasade2@gmail.com">
+    <input id="pw" type="password" placeholder="كلمة المرور">
+    <button id="go">دخول</button>
+  </div>
+  <div id="inBox" hidden><button id="out" style="background:#666">تسجيل خروج</button></div>
+  <div id="msg"></div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig } from "./firebase-config.js";
+const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getFirestore(app);
+const $ = id => document.getElementById(id), msg = (t,c) => { $('msg').className = c||''; $('msg').textContent = t; };
+$('go').onclick = async () => {
+  msg('جاري الدخول...');
+  try { await signInWithEmailAndPassword(auth, $('em').value.trim(), $('pw').value); }
+  catch (e) { msg('ما زبط الدخول: ' + e.code, 'err'); }
+};
+$('out').onclick = () => signOut(auth);
+onAuthStateChanged(auth, async u => {
+  $('loginBox').hidden = !!u; $('inBox').hidden = !u;
+  if (!u) return;
+  try {
+    await setDoc(doc(db, 'site', 'test'), { ok: true, at: serverTimestamp() });
+    const s = await getDoc(doc(db, 'site', 'test'));
+    msg('✅ تم الدخول: ' + u.email + '\n✅ الحفظ في قاعدة البيانات شغال' + (s.exists() ? '' : ' (؟)'), 'ok');
+  } catch (e) { msg('✅ تم الدخول، لكن قاعدة البيانات: ' + e.code, 'err'); }
+});
+</script></body></html>
