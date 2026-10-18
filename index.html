@@ -560,9 +560,31 @@ render("all");
         bar.innerHTML='<span>وضع المدير</span><button type="button" id="admEdit">✏️ تعديل وإضافة السيارات</button><a href="admin.html">لوحة الإدارة</a>';
         var st=document.createElement("style");st.textContent='.admbar{position:fixed;top:0;left:0;right:0;z-index:70;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;padding:8px 10px;background:#C8102E;color:#fff;font:700 14px Cairo,Tajawal,sans-serif;box-shadow:0 2px 10px #0004}.admbar span{opacity:.85}.admbar button,.admbar a{background:#fff;color:#C8102E;border:0;border-radius:8px;padding:7px 12px;font:800 14px Cairo,Tajawal,sans-serif;text-decoration:none;cursor:pointer}.admfab{display:none!important}body{padding-top:52px}header.top{top:52px!important}';
         document.head.appendChild(st);document.body.appendChild(bar);
-        function openEd(){var d=document.querySelector("dialog.adm");if(d){if(!d.open)d.showModal()}else setTimeout(openEd,300)}
-        document.getElementById("admEdit").onclick=openEd;
-        if(/[?&]edit=1/.test(location.search))setTimeout(openEd,400);
+        st.textContent+='.admsearch{position:sticky;top:-1px;z-index:3;background:inherit;padding:8px 0 10px;margin:0 0 6px}.admsearch input{width:100%;box-sizing:border-box;padding:12px 14px;border:2px solid #C8102E;border-radius:12px;font:600 16px Tajawal,Tahoma,sans-serif}.admsearch small{display:block;margin-top:6px;opacity:.75;font-size:13px}.btn.admedit{background:#C8102E!important;color:#fff!important}';
+        function norm(t){return String(t||"").toLowerCase().replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim()}
+        function filt(){
+          var d=document.querySelector("dialog.adm");if(!d)return;var inp=d.querySelector(".admsearch input");var q=norm(inp?inp.value:"");
+          var n=0,tot=0;d.querySelectorAll(".row1").forEach(function(r){var h=r.querySelector("h3");tot++;var ok=!q||norm(h&&h.textContent).indexOf(q)>=0||q.split(" ").every(function(w){return norm(h&&h.textContent).indexOf(w)>=0});r.style.display=ok?"":"none";if(ok)n++});
+          var box=d.querySelector(".row1")&&d.querySelector(".row1").parentNode;if(box)Array.prototype.forEach.call(box.children,function(c){if(c.tagName==="H3")c.style.display=q?"none":""});
+          var sm=d.querySelector(".admsearch small");var tx=q?("النتائج: "+n+" من "+tot):"اكتب اسم السيارة مثل: كامري، برادو، لكزس";if(sm&&sm.textContent!==tx)sm.textContent=tx;
+        }
+        function prep(d){
+          if(d.querySelector(".admsearch"))return;
+          var w=document.createElement("div");w.className="admsearch";w.innerHTML='<input type="search" placeholder="🔍 ابحث عن السيارة..."><small></small>';
+          var inn=d.querySelector(".in");var meta=inn.querySelector(".meta");inn.insertBefore(w,meta?meta.nextSibling:inn.firstChild);
+          w.querySelector("input").addEventListener("input",filt);
+          new MutationObserver(function(ms){if(ms.some(function(m){return !w.contains(m.target)}))filt()}).observe(inn,{childList:true,subtree:true});
+          filt();
+        }
+        function openEd(q){
+          var d=document.querySelector("dialog.adm");if(!d){setTimeout(function(){openEd(q)},300);return}
+          prep(d);var inp=d.querySelector(".admsearch input");inp.value=typeof q==="string"?q:"";filt();
+          if(!d.open)d.showModal();d.querySelector(".in").scrollTop=0;if(!q)setTimeout(function(){inp.focus()},50);
+        }
+        document.getElementById("admEdit").onclick=function(){openEd("")};
+        if(/[?&]edit=1/.test(location.search))setTimeout(function(){openEd("")},400);
+        function addBtns(){document.querySelectorAll("#grid article.card").forEach(function(c){if(c.querySelector(".admedit"))return;var t=c.querySelector(".ttl");var b=document.createElement("button");b.type="button";b.className="btn admedit";b.textContent="✏️ تعديل";b.onclick=function(){openEd(t?t.textContent:"")};(c.querySelector(".acts")||c).appendChild(b)})}
+        var g=document.getElementById("grid");if(g){new MutationObserver(addBtns).observe(g,{childList:true});addBtns()}
         admResolve({
           user:{isOwner:function(){return true},canEdit:function(){return true}},
           artifact:{publish:function(){
