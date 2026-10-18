@@ -299,6 +299,8 @@ details.part[open] summary::after{content:"－"}
         <label style="grid-column:1/-1">النموذج<select id="qf_tpl"><option value="sama">نموذج المعرض</option><option value="ahli">نموذج البنك الأهلي (SNB)</option></select></label>
         <label>العميل في اللوحة (اختياري)<select id="qf_cust"></select></label>
         <label>التاريخ<input id="qf_date" type="date"></label>
+        <label>اسم المندوب<input id="qf_rep" list="repList" placeholder="اكتب أو اختر"></label>
+        <label>جوال المندوب<input id="qf_repph" class="phone" inputmode="tel" placeholder="05xxxxxxxx"></label><datalist id="repList"></datalist>
         <label style="grid-column:1/-1" id="qf_toL">السادة / <input id="qf_to" placeholder="مثل: مصرف الإنماء، أو اسم العميل"></label>
         <label>نوع السيارة<input id="qf_car" placeholder="مثل: لكزس ES350CC"></label>
         <label>الموديل<input id="qf_year" class="num" inputmode="numeric" placeholder="2026"></label>
@@ -1006,7 +1008,7 @@ async function drawQuote(){const o=calcOffer();if(!o)return null;const r=o.r,f=o
 /* ---------- عروض الأسعار ---------- */
 const Q_DEF={iban1:"يصدر الشيك باسم (معرض سماء الرياض للسيارات) أو التحويل على الآيبان التالي:",b1:"بنك الراجحي",i1:"SA10 8000 0204 6080 1137 9587",b2:"بنك الأهلي",i2:"SA65100000 23500000366806",b3:"بنك الرياض",i3:"SA6220000002394061269940",tax:"300222772600003",title:"مشرف المبيعات",name:"عصام عبد الجليل",phone:"0554378456",email:"esamasade2@gmail.com"};
 let quotes=[],qSet=Object.assign({},Q_DEF),qEditId=null;
-const QF=["tpl","cust","date","to","car","year","unit","qty","fee","color","engine","gear","vin","specs","war","valid","pay","deliv","plates","icolor","load","cond","km","fuel","warm","wark","notes","city","street","pob","zip"];
+const QF=["tpl","cust","date","rep","repph","to","car","year","unit","qty","fee","color","engine","gear","vin","specs","war","valid","pay","deliv","plates","icolor","load","cond","km","fuel","warm","wark","notes","city","street","pob","zip"];
 const m2=n=>(Number(n)||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 function qRead(){const o={};QF.forEach(k=>o[k]=$("#qf_"+k).value.trim());let u=N(o.unit);if($("#qf_incl").checked)u=Math.round(u/1.15*100)/100;
   o.unitNet=u;o.qtyN=Math.max(1,N(o.qty)||1);o.sub=u*o.qtyN;o.vat=Math.round(o.sub*0.15*100)/100;o.feeN=o.tpl==="ahli"?0:N(o.fee);o.total=o.sub+o.feeN+o.vat;return o}
@@ -1042,8 +1044,8 @@ function quoteHTML(q){const S=qSet;return `<div class="qa4">
   </table>
   <div class="qgreet" style="text-align:right">راجين أن ينال عرضنا رضاكم وتقبلوا فائق تحياتنا</div>
   <div class="qfoot">
-    <div class="qsign"><span>${esc(S.title)}</span><span>${esc(S.name)}</span><span></span>
-      <span>جوال</span><span class="ltr" style="text-align:right">${esc(S.phone)}</span><span class="ltr" style="color:#1a4fd6;text-decoration:underline">wa.me/966${esc(String(S.phone).replace(/\D/g,"").replace(/^0/,""))}</span>
+    <div class="qsign"><span>${esc(S.title)}</span><span>${esc(q.rep||S.name)}</span><span></span>
+      <span>جوال</span><span class="ltr" style="text-align:right">${esc(q.repph||S.phone)}</span><span class="ltr" style="color:#1a4fd6;text-decoration:underline">wa.me/966${esc(String(q.repph||S.phone).replace(/\D/g,"").replace(/^0/,""))}</span>
       <span></span><span class="ltr" style="text-align:right;color:#1a4fd6;text-decoration:underline">${esc(S.email)}</span><span></span></div>
     <img class="qstamp" src="q_stamp_blue.png" alt="">
   </div>
@@ -1075,8 +1077,8 @@ function ahliHTML(q){const S=qSet;
   ${F(80,662,467,q.notes,"r")}
   ${F(88,628,492,"معرض سماء الرياض للسيارات")}
   ${F(428,648,521,q.city)}${F(90,391,521,q.street)}
-  ${F(578,666,547,q.pob)}${F(390,510,547,q.zip)}${F(90,348,547,S.phone,"ltr")}
-  ${F(390,641,574,S.name)}
+  ${F(578,666,547,q.pob)}${F(390,510,547,q.zip)}${F(90,348,547,q.repph||S.phone,"ltr")}
+  ${F(390,641,574,q.rep||S.name)}
   ${F(650,697,602,String(+dd||""))}${F(605,645,602,String(+mm||""))}${F(552,601,602,yy)}
   <img class="stamp" src="q_stamp_blue.png" alt="" style="left:140px;top:556px">
 </div>`}
@@ -1084,8 +1086,9 @@ function qPreview(){const q=qRead(),ah=q.tpl==="ahli";["qf_toL","qf_feeL","qf_wa
   $("#qPrevIn").style.transform=`scale(${s})`;$("#qPrev").style.height=(1123*s)+"px";
   $("#qSum").innerHTML=`<div><span>السعر قبل الضريبة</span><b>${m2(q.sub)}</b></div><div><span>الضريبة 15%</span><b>${m2(q.vat)}</b></div><div class="total"><span>السعر الإجمالي</span><b>${m2(q.total)}</b></div>`}
 function qFill(d){d=d||{};const blank={tpl:"sama",icolor:"",load:"",cond:"جديد",km:"0",fuel:"",warm:"36",wark:"100,000",notes:"",city:"الرياض",street:"شارع المعارض - حي الشفاء",pob:"",zip:"",cust:"",date:todayStr(),to:"",car:"",year:"2026",unit:"",qty:"1",fee:"892",color:"",engine:"بنزين",gear:"قيرتماتيك",vin:"",specs:"",war:"3 سنوات او 100,000 كيلو متر أيهما أسبق",valid:"3 أيام",pay:"تحويل بنكي او شيك",deliv:"حسب التوفر بالمخزون",plates:"بدون تأمين مع لوحات"};
-  const v=Object.assign(blank,d);qCustOpts();QF.forEach(k=>{$("#qf_"+k).value=v[k]??""});$("#qf_incl").checked=false;$("#qImgOut").hidden=true;qPreview()}
+  const v=Object.assign(blank,d);if(!v.rep)v.rep=qSet.name||"";if(!v.repph)v.repph=qSet.phone||"";repOpts();qCustOpts();QF.forEach(k=>{$("#qf_"+k).value=v[k]??""});$("#qf_incl").checked=false;$("#qImgOut").hidden=true;qPreview()}
 function qCustOpts(){const sel=$("#qf_cust"),cur=sel.value;sel.innerHTML=`<option value="">—</option>`+customers.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),"ar")).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");sel.value=cur}
+function repOpts(){const m=new Map();if(qSet.name)m.set(qSet.name,qSet.phone||"");quotes.slice().sort((a,b)=>(a.updatedAt||0)-(b.updatedAt||0)).forEach(q=>{if(q.rep)m.set(q.rep,q.repph||"")});window.__reps=m;const dl=$("#repList");if(dl)dl.innerHTML=[...m.keys()].map(n=>`<option value="${esc(n)}">`).join("")}
 function qSetFill(){const S=qSet;$("#qs_iban1").value=S.iban1;["b1","i1","b2","i2","b3","i3","tax","title","name","phone","email"].forEach(k=>$("#qs_"+k).value=S[k]||"")}
 function renderQuotes(){const l=quotes.slice().sort((a,b)=>(b.no||0)-(a.no||0));
   $("#qList").innerHTML=l.length?l.map(q=>rowShell(q.id,"q",`عرض رقم ${q.no||"—"} · ${q.tpl==="ahli"?"البنك الأهلي"+(q.custName?" · "+esc(q.custName):""):esc(q.to||q.custName||"")}`,`<span class="num">${m2(q.total)}</span>`,`<span>${esc(q.car||"")} ${esc(q.year||"")}</span><span>${esc(fmtD(q.date))}</span>${q.custName?`<span>العميل: ${esc(q.custName)}</span>`:""}`)).join(""):empty("ما فيه عروض محفوظة. عبّ النموذج فوق واضغط «حفظ العرض».")}
@@ -1187,6 +1190,7 @@ $("#imgSave").onclick=async()=>{if(!quoteBlob)return;const qn=$("#q_name").value
   catch(e){toast("اضغط على الصورة مطوّلاً واحفظها")}};
 $("#qForm").addEventListener("input",()=>qPreview());
 $("#qf_cust").addEventListener("change",()=>{const c=customers.find(x=>x.id===$("#qf_cust").value);if(c&&!$("#qf_to").value.trim()){$("#qf_to").value=(c.finance&&c.finance.bank)||c.name;qPreview()}});
+$("#qf_rep").addEventListener("change",()=>{const m=window.__reps,n=$("#qf_rep").value.trim();if(m&&m.has(n)&&m.get(n)){$("#qf_repph").value=m.get(n);qPreview()}});
 $("#qNew").onclick=()=>{qEditId=null;$("#qTitle").textContent="عرض سعر جديد";qFill({})};
 $("#qForm").addEventListener("submit",async e=>{e.preventDefault();if(!db||!canWrite)return;const q=qRead();if(!q.car||!q.unitNet){toast("اكتب نوع السيارة والسعر");return}
   const c=customers.find(x=>x.id===q.cust);const data={};QF.forEach(k=>data[k]=q[k]);Object.assign(data,{unit:q.unitNet,total:q.total,custName:c?c.name:"",updatedAt:Date.now()});
@@ -1335,7 +1339,7 @@ render();
     try{const u=await claude.use("user");if(u){const w=await u.can("data.write");if(w===false)canWrite=false}}catch(e){}
     claude.use("mcp").then(m=>{mcp=m}).catch(()=>{});
     const sub=(col,fn)=>db.collection(col).onSnapshot(s=>{fn(s.docs.map(d=>Object.assign({id:d.id},d.data())));render()},()=>{});
-    sub("quotes",x=>quotes=x);sub("letters",x=>letters=x);db.doc("settings/signature").onSnapshot(d=>{sigData=(d.exists&&d.data().d)||"";if(typeof sigShow==="function"){sigShow();if(tab==="letters")lPreview()}},()=>{});db.doc("settings/quote").onSnapshot(d=>{qSet=Object.assign({},Q_DEF,d.exists?d.data():{});qSetFill();if(tab==="quotes")qPreview()},()=>{});
+    sub("quotes",x=>{quotes=x;repOpts()});sub("letters",x=>letters=x);db.doc("settings/signature").onSnapshot(d=>{sigData=(d.exists&&d.data().d)||"";if(typeof sigShow==="function"){sigShow();if(tab==="letters")lPreview()}},()=>{});db.doc("settings/quote").onSnapshot(d=>{qSet=Object.assign({},Q_DEF,d.exists?d.data():{});qSetFill();if(tab==="quotes")qPreview()},()=>{});
     sub("haraj_msgs",x=>hMsgs=x);sub("haraj_ads",x=>{hAds=x;hcAdsUI()});sub("haraj_cmds",x=>{hCmds=x;renderCmds()});sub("haraj_edits",x=>hEdits=x);
     db.doc("haraj/fetch").onSnapshot(d=>{hFetch=d.exists?d.data():null;renderHarajTab()},()=>{});
     db.doc("haraj/last").onSnapshot(d=>{haraj=d.exists?d.data():null;renderHaraj()},()=>{});
