@@ -226,7 +226,16 @@ details.part[open] summary::after{content:"－"}
       if(u.email!==ADMIN){msg.textContent="هذا الحساب ما له صلاحية";A.signOut(auth);return}
       box.hidden=true;document.getElementById("admBar").hidden=false;
       try{localStorage.setItem("sama_admin","1")}catch(e){}
-      if(!started){started=true;ready({db:db,user:{can:function(){return Promise.resolve(true)}},downloads:downloads})}
+      if(!started){started=true;ready({db:db,user:{can:function(){return Promise.resolve(true)}},downloads:downloads});
+        /* واجهة للمهام المجدولة (تشتغل من متصفح Claude على كمبيوتر المدير) */
+        window.SAMA={
+          list:function(c){return F.getDocs(F.collection(fs,c)).then(function(s){return s.docs.map(function(d){return Object.assign({id:d.id},d.data())})})},
+          get:function(p){return F.getDoc(F.doc(fs,p)).then(function(s){return s.exists()?Object.assign({id:s.id},s.data()):null})},
+          set:function(p,d){return F.setDoc(F.doc(fs,p),d,{merge:true}).then(function(){return true})},
+          update:function(p,d){return F.updateDoc(F.doc(fs,p),d).then(function(){return true})},
+          add:function(c,d){return F.addDoc(F.collection(fs,c),d).then(function(r){return r.id})},
+          del:function(p){return F.deleteDoc(F.doc(fs,p)).then(function(){return true})}
+        };window.SAMA_READY=true}
     });
   }).catch(function(){var m=document.getElementById("gMsg");if(m)m.textContent="ما قدرنا نتصل بالإنترنت، حدّث الصفحة"});
 })();
@@ -428,8 +437,25 @@ details.part[open] summary::after{content:"－"}
     <section><div class="sec-head"><h2>رفع الإعلانات</h2></div>
       <div class="box" id="harajBox">
         <span id="harajStatus" class="hint">آخر تحديث: لا يوجد بعد.</span>
-        <div class="actions"><button class="btn primary" type="button" id="harajBtn">حدّث إعلانات حراج الحين</button><a class="btn" id="harajLink" target="_blank" rel="noopener">افتح حسابي في حراج</a></div>
-        <span class="hint" id="harajHint">التحديث يشتغل على كمبيوترك من متصفح Claude، فلازم يكون الكمبيوتر شغال وتطبيق Claude مفتوح ومسجل دخول في حراج. يرفع الإعلانات بس، وما يعدل أو يحذف شي.</span>
+        <h3 style="margin:10px 0 4px">أوامر حراج</h3>
+        <span class="hint">اختر الإعلانات اللي تبي تحدّثها، أو اضغط زر جاهز، أو اكتب أمرك بكلامك. الأوامر تتنفذ من كمبيوترك تلقائياً كل ساعة (من ٩ الصبح لين ١١ الليل)، أو قل لـ Claude: «نفّذ أوامر حراج» وتتنفذ على طول.</span>
+        <div class="chips" style="flex-wrap:wrap;margin-top:8px">
+          <button class="chip" type="button" data-hq="oldest5">حدّث الأقدم ٥</button>
+          <button class="chip" type="button" data-hq="toyota">حدّث تويوتا بس</button>
+          <button class="chip" type="button" data-hq="lexus">حدّث لكزس بس</button>
+          <button class="chip" type="button" data-hq="all">حدّث الكل</button>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:10px">
+          <input id="hcSearch" type="search" placeholder="🔍 فلتر الإعلانات (مثل: برادو)" style="flex:1">
+          <button class="btn small" type="button" id="hcAll">تحديد الكل</button>
+        </div>
+        <div id="hcAds" style="max-height:320px;overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:6px"></div>
+        <div class="actions" style="margin-top:8px"><button class="btn primary" type="button" id="hcBump">حدّث المحدد (<span id="hcN">0</span>)</button><a class="btn" id="harajLink" target="_blank" rel="noopener">افتح حسابي في حراج</a></div>
+        <label style="margin-top:10px">أو اكتب أمرك<textarea id="hcText" rows="2" placeholder="مثل: حدّث إعلانات البرادو والكامري بس — أو: غيّر عنوان إعلان الراف فور إلى «راف فور 2026 فل كامل»"></textarea></label>
+        <div class="actions"><button class="btn primary" type="button" id="hcSend">أرسل الأمر</button></div>
+        <span class="hint">التحديث (الرفع) يتنفذ مباشرة. أي تعديل في نص أو عنوان أو صور يرجع لك أول تحت «تعديل الإعلانات» عشان توافق عليه. ما ينحط سعر في الإعلانات.</span>
+        <h3 style="margin:12px 0 4px">آخر الأوامر</h3>
+        <div class="list" id="hcList"></div>
       </div>
     </section>
     <section><div class="sec-head"><h2>رسائل حراج</h2><span class="pill" id="hmCount">0</span></div>
@@ -706,10 +732,10 @@ function renderHarajTab(){
   sel.innerHTML=`<option value="">— اختر إعلان —</option>`+hAds.slice().sort((a,b)=>String(a.title).localeCompare(String(b.title),"ar")).map(a=>`<option value="${esc(a.id)}">${esc(a.title)}</option>`).join("")+`<option value="__url">إعلان ثاني (ألصق الرابط)</option>`;
   sel.value=cur;$("#e_urlL").hidden=sel.value!=="__url";
   const ed=hEdits.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,20);
-  $("#editList").innerHTML=ed.length?ed.map(e=>`<div class="trow"><div class="tx"><b>${esc(e.adTitle||e.adUrl||"إعلان")}</b><br><span class="hint">${esc(e.change)}</span>${e.result?`<br><span class="hint">${esc(e.result)}</span>`:""}${e.error?`<br><span class="pill late">${esc(e.error)}</span>`:""}</div><span class="pill ${e.status==="تم"?"won":e.status==="معتمد"?"today":"late"}">${esc(e.status==="معتمد"?"ينتظر التنفيذ":e.status)}</span>${canWrite&&e.status!=="تم"?`<button class="btn small" type="button" data-edel="${esc(e.id)}">حذف</button>`:""}</div>`).join(""):empty("ما فيه تعديلات.");
+  $("#editList").innerHTML=ed.length?ed.map(e=>`<div class="trow"><div class="tx"><b>${esc(e.adTitle||e.adUrl||"إعلان")}</b><br><span class="hint">${esc(e.change)}</span>${e.result?`<br><span class="hint">${esc(e.result)}</span>`:""}${e.error?`<br><span class="pill late">${esc(e.error)}</span>`:""}</div><span class="pill ${e.status==="تم"?"won":e.status==="معتمد"?"today":"late"}">${esc(e.status==="معتمد"?"ينتظر التنفيذ":e.status==="مقترح"?"ينتظر موافقتك":e.status)}</span>${canWrite&&e.status==="مقترح"?`<button class="btn small primary" type="button" data-eapp="${esc(e.id)}">موافق</button>`:""}${canWrite&&e.status!=="تم"?`<button class="btn small" type="button" data-edel="${esc(e.id)}">حذف</button>`:""}</div>`).join(""):empty("ما فيه تعديلات.");
 }
 async function fireTask(id,btn,label,onOk){
-  if(!mcp){toast("هذا الزر يشتغل من داخل تطبيق Claude. أو قلها لـ Claude في المحادثة");return}
+  if(!mcp){const k=id===FETCH_TASK?"fetch":"exec";if(await hcAdd({kind:k,label:k==="fetch"?"جيب الرسائل والإعلانات":"أرسل الردود والتعديلات المعتمدة"})&&onOk)onOk();return}
   const old=btn.textContent;btn.disabled=true;btn.textContent="أرسل الطلب…";
   try{await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:id});if(onOk)onOk();toast(label+": بدأ، بيوصلك إشعار لما يخلص")}
   catch(e){const c=e&&e.code;toast(c==="not_in_manifest"||c==="approval_required"?"لازم توافق على السماح للوحة تشغّل المهمة":c==="server_not_connected"||c==="needs_reauth"?"الربط مع Claude Code Remote مو مفعّل":c==="server_unavailable"||c==="upstream_error"?"ما تأكدت إن الطلب وصل. لا تعيده الحين، انتظر الإشعار":"ما قدرت أبدأ، قلها لـ Claude في المحادثة")}
@@ -1103,6 +1129,30 @@ $("#taskForm").addEventListener("submit",async e=>{e.preventDefault();if(!db||!c
 $("#wantForm").addEventListener("submit",async e=>{e.preventDefault();if(!db||!canWrite)return;const v=id=>$("#"+id).value.trim();
   if(await save(()=>db.collection("wanted").add({name:v("w_name"),phone:v("w_phone"),car:v("w_car"),spec:v("w_spec"),status:"ينتظر",createdAt:Date.now()}),"تم حفظ الطلب")){["w_name","w_phone","w_car","w_spec"].forEach(id=>$("#"+id).value="");wantFilter="ينتظر";renderWanted()}});
 $("#addBtn").onclick=()=>{if(!db){toast("اللوحة ما اتصلت بعد");return}showForm(null)};
+
+/* ---------- أوامر حراج ---------- */
+let hCmds=[];const hcSel=new Set();
+const HQ={oldest5:"حدّث أقدم ٥ إعلانات",toyota:"حدّث إعلانات تويوتا بس",lexus:"حدّث إعلانات لكزس بس",all:"حدّث كل الإعلانات"};
+function hcAdsUI(){const el=$("#hcAds");if(!el)return;const q=($("#hcSearch").value||"").trim();
+  const list=hAds.slice().sort((a,b)=>String(a.title).localeCompare(String(b.title),"ar")).filter(a=>!q||String(a.title||"").includes(q));
+  el.innerHTML=list.length?list.map(a=>`<label class="trow" style="cursor:pointer;flex-direction:row;justify-content:flex-start"><input type="checkbox" data-had="${esc(a.id)}" ${hcSel.has(a.id)?"checked":""} style="width:20px;height:20px;flex:none"><span>${esc(a.title||a.url||a.id)}</span></label>`).join("")
+    :`<p class="hint" style="padding:10px">${hAds.length?"ما فيه إعلان بهالاسم":"قائمة الإعلانات تنجاب في أول تشغيل. اضغط «جيب الرسائل الجديدة» تحت، أو استخدم الأزرار الجاهزة فوق."}</p>`;
+  $("#hcN").textContent=hcSel.size}
+function renderCmds(){const el=$("#hcList");if(!el)return;const l=hCmds.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,15);
+  const pill=s=>`<span class="pill ${s==="تم"?"won":s==="فشل"||s==="يحتاج تسجيل دخول"?"late":s==="جاري"?"today":""}">${esc(s||"جديد")}</span>`;
+  el.innerHTML=l.length?l.map(c=>`<div class="trow"><div class="tx"><b>${esc(c.label||c.text||"")}</b><br><span class="hint">${esc(fmtTime(c.createdAt||0))}${c.result?" · "+esc(c.result):""}${c.error?" · "+esc(c.error):""}</span></div>${pill(c.status)}${(c.status||"جديد")==="جديد"?`<button class="btn small" type="button" data-hcdel="${esc(c.id)}">إلغاء</button>`:""}</div>`).join("")
+    :`<p class="hint" style="padding:10px">ما فيه أوامر بعد.</p>`}
+async function hcAdd(cmd){if(!db)return false;cmd.status="جديد";cmd.createdAt=Date.now();return save(()=>db.collection("haraj_cmds").add(cmd),"انحفظ الأمر ✅ يتنفذ خلال ساعة، أو قل لـ Claude: نفّذ أوامر حراج")}
+$("#hcAds").addEventListener("change",e=>{const c=e.target.closest("[data-had]");if(!c)return;c.checked?hcSel.add(c.dataset.had):hcSel.delete(c.dataset.had);$("#hcN").textContent=hcSel.size});
+$("#hcSearch").addEventListener("input",hcAdsUI);
+$("#hcAll").onclick=()=>{const boxes=[...document.querySelectorAll("#hcAds [data-had]")];const all=boxes.every(b=>b.checked);boxes.forEach(b=>{b.checked=!all;all?hcSel.delete(b.dataset.had):hcSel.add(b.dataset.had)});$("#hcN").textContent=hcSel.size;$("#hcAll").textContent=all?"تحديد الكل":"إلغاء التحديد"};
+$("#hcBump").onclick=async()=>{if(!hcSel.size){toast("حدد إعلان واحد على الأقل");return}const ads=hAds.filter(a=>hcSel.has(a.id));
+  if(await hcAdd({kind:"bump",scope:"selected",ads:ads.map(a=>({id:a.id,title:a.title||"",url:a.url||""})),label:`حدّث ${ads.length} إعلان: `+ads.map(a=>a.title).slice(0,3).join("، ")+(ads.length>3?"…":"")})){hcSel.clear();hcAdsUI()}};
+document.querySelectorAll("[data-hq]").forEach(b=>b.onclick=()=>hcAdd({kind:"bump",scope:b.dataset.hq,label:HQ[b.dataset.hq]}));
+$("#hcSend").onclick=async()=>{const t=$("#hcText").value.trim();if(!t){toast("اكتب الأمر أول");return}if(await hcAdd({kind:"text",text:t,label:t}))$("#hcText").value=""};
+$("#editList").addEventListener("click",async e=>{const a=e.target.closest("[data-eapp]");if(a)await save(()=>db.doc("haraj_edits/"+a.dataset.eapp).update({status:"معتمد",approvedAt:Date.now()}),"وافقت ✅ يتنفذ في التشغيلة الجاية")});
+$("#hcList").addEventListener("click",async e=>{const d=e.target.closest("[data-hcdel]");if(d)await save(()=>db.doc("haraj_cmds/"+d.dataset.hcdel).delete(),"انلغى الأمر")});
+
 $("#fetchBtn").onclick=()=>fireTask(FETCH_TASK,$("#fetchBtn"),"جلب الرسائل",()=>{if(db)db.doc("haraj/fetch").set({status:"جاري",at:new Date().toISOString(),msgs:0,ads:0,note:""}).catch(()=>{})});
 $("#execBtn").onclick=()=>{const n=hMsgs.filter(m=>m.status==="معتمد").length+hEdits.filter(e=>e.status==="معتمد").length;
   if(!n){toast("ما فيه شي معتمد. اعتمد رد أو تعديل أول");return}fireTask(EXEC_TASK,$("#execBtn"),`إرسال ${n} معتمد`)};
@@ -1257,7 +1307,7 @@ $("#calcCp").onclick=async()=>{try{await navigator.clipboard.writeText($("#calcT
 $("#calcSaveN").onclick=async()=>{const o=calcOffer();if(!o||!calcFor||!db)return;const c=customers.find(x=>x.id===calcFor.id);if(!c)return;
   const r=o.r,f=o.fmt;await save(()=>db.doc("customers/"+c.id).update({updatedAt:Date.now(),notes:(c.notes||[]).concat([{t:Date.now(),text:`عرض ${o.mode==="two"?"دفعتين":"أقساط"}: سعر ${f(r.price)}، دفعة أولى ${f(r.down)}، قسط ${f(r.monthly)} × ${r.months} شهر${r.bal>0?`، أخيرة ${f(r.bal)}`:""}`}])}),"انحفظ العرض في ملفه")};
 $("#harajLink").href=HARAJ_URL;$("#finCalc").onclick=()=>openCalc(null);
-$("#harajBtn").onclick=async()=>{const b=$("#harajBtn");
+if($("#harajBtn"))$("#harajBtn").onclick=async()=>{const b=$("#harajBtn");
   if(!mcp){toast("زر التحديث يشتغل من داخل تطبيق Claude. أو قل لـ Claude: حدّث حراج");return}
   if(haraj&&haraj.status==="جاري"&&haraj.at&&Date.now()-Date.parse(haraj.at)<15*60e3){toast("التحديث شغال من قبل شوي");return}
   b.disabled=true;b.textContent="أرسل الطلب…";
@@ -1286,7 +1336,7 @@ render();
     claude.use("mcp").then(m=>{mcp=m}).catch(()=>{});
     const sub=(col,fn)=>db.collection(col).onSnapshot(s=>{fn(s.docs.map(d=>Object.assign({id:d.id},d.data())));render()},()=>{});
     sub("quotes",x=>quotes=x);sub("letters",x=>letters=x);db.doc("settings/signature").onSnapshot(d=>{sigData=(d.exists&&d.data().d)||"";if(typeof sigShow==="function"){sigShow();if(tab==="letters")lPreview()}},()=>{});db.doc("settings/quote").onSnapshot(d=>{qSet=Object.assign({},Q_DEF,d.exists?d.data():{});qSetFill();if(tab==="quotes")qPreview()},()=>{});
-    sub("haraj_msgs",x=>hMsgs=x);sub("haraj_ads",x=>hAds=x);sub("haraj_edits",x=>hEdits=x);
+    sub("haraj_msgs",x=>hMsgs=x);sub("haraj_ads",x=>{hAds=x;hcAdsUI()});sub("haraj_cmds",x=>{hCmds=x;renderCmds()});sub("haraj_edits",x=>hEdits=x);
     db.doc("haraj/fetch").onSnapshot(d=>{hFetch=d.exists?d.data():null;renderHarajTab()},()=>{});
     db.doc("haraj/last").onSnapshot(d=>{haraj=d.exists?d.data():null;renderHaraj()},()=>{});
     claude.use("sample").then(s=>{sample=s;$("#cmdForm").hidden=!s||!canWrite}).catch(()=>{});
