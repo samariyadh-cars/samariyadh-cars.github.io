@@ -120,7 +120,7 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--mu
 .ha4 td.vin{font-family:"Times New Roman",serif;direction:ltr;font-size:21px}
 .ha4 .hk{text-align:center;font-size:20px;margin-top:22px}
 .ha4 .hsg{position:absolute;left:132px;top:842px;width:180px}
-.ha4 .hst{position:absolute;left:515px;top:900px;width:215px}
+.ha4 .hst{position:absolute;left:505px;top:915px;width:215px;opacity:.95}
 .lrow{display:grid;grid-template-columns:1.4fr 1fr 1.2fr .8fr auto;gap:6px;align-items:end}
 .lrow label{font-size:12px}
 @media(max-width:560px){.lrow{grid-template-columns:1fr 1fr}.lrow .x{grid-column:1/-1}}
@@ -1164,7 +1164,7 @@ function lHTML(l){const rows=(l.rows||[]).filter(r=>r.car||r.vin||r.color),many=
 <div class="hto"><span>السادة / ${esc(l.to||"")}</span><span>المحترمين</span></div>
 <div class="hb">${body}</div>
 <table><thead><tr><th style="width:6%">م</th><th style="width:27%">نوع السيارة</th><th style="width:19%">اللون</th><th style="width:27%">الهيكل</th><th style="width:21%">موديل</th></tr></thead><tbody>${tr}</tbody></table>
-<div class="hk">مع الشكر والتقدير ..</div></div>${l.stamp!==false?`<img class="hsg" src="h_sign.png" alt=""><img class="hst" src="h_stamp.png" alt="">`:""}</div>`}
+<div class="hk">مع الشكر والتقدير ..</div></div>${l.stamp!==false?`<img class="hsg" src="h_sign.png" alt=""><img class="hst" src="q_stamp_blue.png" alt="">`:""}</div>`}
 function lRowsUI(){const l=lCur;$("#l_rows").innerHTML=l.rows.map((r,i)=>`<div class="lrow" data-i="${i}">
 <label>نوع السيارة<input data-k="car" value="${esc(r.car)}" placeholder="مثل: يارس"></label>
 <label>اللون<input data-k="color" value="${esc(r.color)}" placeholder="ابيض"></label>
