@@ -145,7 +145,7 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--mu
 .qa4 .ltr{direction:ltr;unicode-bidi:embed}
 .qa4 .qsign{display:grid;grid-template-columns:150px 1fr 1fr;gap:4px 10px;align-items:center;font-weight:700;font-size:13px;margin-top:2px}
 .qa4 .qfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto}
-.qa4 .qstamp{width:150px}
+.qa4 .qstamp{width:150px}.qa4 .qfoot{position:relative}.qsg{position:absolute;pointer-events:none}
 .qa4 .qsoc{width:100%;display:block}
 .qah{width:794px;height:1123px;position:relative;background:#fff url(q_ahli.jpg) center/100% 100% no-repeat;direction:rtl;font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;color:#0b2a6b}
 .qah .f{position:absolute;height:20px;line-height:20px;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-align:center}
@@ -308,6 +308,7 @@ details.part[open] summary::after{content:"－"}
         <label>السعر الإفرادي<input id="qf_unit" class="num" inputmode="decimal" placeholder="بالريال"></label>
         <label>الكمية<input id="qf_qty" class="num" inputmode="numeric" value="1"></label>
         <label class="check" style="grid-column:1/-1;flex-direction:row;align-items:center;gap:8px"><input id="qf_incl" type="checkbox" style="width:auto;min-height:0"> السعر اللي كتبته شامل الضريبة (يطلّع السعر قبل الضريبة لحاله)</label>
+        <label class="check" style="grid-column:1/-1;flex-direction:row;align-items:center;gap:8px"><input id="qf_sig" type="checkbox" checked style="width:auto;min-height:0"> حط توقيعي على العرض</label>
         <label id="qf_feeL">رسوم إصدار اللوحات<input id="qf_fee" class="num" inputmode="decimal" value="892"></label>
         <label>اللون<input id="qf_color"></label>
         <label>نوع المحرك<input id="qf_engine" value="بنزين"></label>
@@ -1013,7 +1014,7 @@ const Q_DEF={iban1:"يصدر الشيك باسم (معرض سماء الرياض
 let quotes=[],qSet=Object.assign({},Q_DEF),qEditId=null;
 const QF=["tpl","cust","date","rep","repph","to","car","year","unit","qty","fee","color","engine","gear","vin","specs","war","valid","pay","deliv","plates","icolor","load","cond","km","fuel","warm","wark","notes","city","street","pob","zip","dist","branch"];
 const m2=n=>(Number(n)||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-function qRead(){const o={};QF.forEach(k=>o[k]=$("#qf_"+k).value.trim());let u=N(o.unit);if($("#qf_incl").checked)u=Math.round(u/1.15*100)/100;
+function qRead(){const o={};QF.forEach(k=>o[k]=$("#qf_"+k).value.trim());o.sig=$("#qf_sig").checked;let u=N(o.unit);if($("#qf_incl").checked)u=Math.round(u/1.15*100)/100;
   o.unitNet=u;o.qtyN=Math.max(1,N(o.qty)||1);o.sub=u*o.qtyN;o.vat=Math.round(o.sub*0.15*100)/100;o.feeN=o.tpl==="ahli"?0:N(o.fee);o.total=o.sub+o.feeN+o.vat;return o}
 function fmtD(s){if(!s)return "";const [y,m,d]=s.split("-");return `${+d}/${+m}/${y}`}
 function quoteHTML(q){const S=qSet;return `<div class="qa4">
@@ -1050,7 +1051,7 @@ function quoteHTML(q){const S=qSet;return `<div class="qa4">
     <div class="qsign"><span>${esc(S.title)}</span><span>${esc(q.rep||S.name)}</span><span></span>
       <span>جوال</span><span class="ltr" style="text-align:right">${esc(q.repph||S.phone)}</span><span class="ltr" style="color:#1a4fd6;text-decoration:underline">wa.me/966${esc(String(q.repph||S.phone).replace(/\D/g,"").replace(/^0/,""))}</span>
       <span></span><span class="ltr" style="text-align:right;color:#1a4fd6;text-decoration:underline">${esc(S.email)}</span><span></span></div>
-    <img class="qstamp" src="q_stamp_blue.png" alt="">
+    <img class="qstamp" src="q_stamp_blue.png" alt="">${q.sig?`<img class="qsg" src="q_sign.png" alt="" style="left:168px;top:50%;transform:translateY(-50%);width:115px">`:""}
   </div>
   <img class="qsoc" src="q_social.jpg" alt="">
 </div>`}
@@ -1089,7 +1090,7 @@ function jaziraHTML(q){const S=qSet;
   ${F(492,722,679,q.pob)}${F(262,416,679,q.zip)}${F(35,212,679,ph,"ltr")}
   ${F(262,660,703,rep)}
   ${F(492,720,731,fmtD(q.date||todayStr()))}
-  <img class="stamp" src="q_stamp_blue.png" alt="" style="left:48px;top:700px;width:118px">
+  <img class="stamp" src="q_stamp_blue.png" alt="" style="left:48px;top:700px;width:118px">${q.sig?`<img class="qsg" src="q_sign.png" alt="" style="left:160px;top:715px;width:92px">`:""}
 </div>`}
 
 function ahliHTML(q){const S=qSet;
@@ -1110,7 +1111,7 @@ function ahliHTML(q){const S=qSet;
   ${F(578,666,547,q.pob)}${F(390,510,547,q.zip)}${F(90,348,547,q.repph||S.phone,"ltr")}
   ${F(390,641,574,q.rep||S.name)}
   ${F(650,697,602,String(+dd||""))}${F(605,645,602,String(+mm||""))}${F(552,601,602,yy)}
-  <img class="stamp" src="q_stamp_blue.png" alt="" style="left:140px;top:556px">
+  <img class="stamp" src="q_stamp_blue.png" alt="" style="left:140px;top:556px">${q.sig?`<img class="qsg" src="q_sign.png" alt="" style="left:258px;top:545px;width:92px">`:""}
 </div>`}
 function qPreview(){const q=qRead(),ah=q.tpl==="ahli",bk=q.tpl!=="sama";["qf_toL","qf_warL"].forEach(i=>$("#"+i).hidden=bk);$("#qf_feeL").hidden=ah;$("#ahliF").hidden=!bk;document.querySelectorAll(".jzOnly").forEach(e=>e.hidden=q.tpl!=="jazira");$("#qPrevIn").innerHTML=docHTML(q);fitAll($("#qPrevIn"));const w=$("#qPrev").clientWidth||794,s=Math.min(1,w/794);
   $("#qPrevIn").style.transform=`scale(${s})`;$("#qPrev").style.height=(1123*s)+"px";
