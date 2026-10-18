@@ -331,11 +331,11 @@ details.part[open] summary::after{content:"－"}
     <div class="box" id="calcCust">
       <div class="sec-head"><h3 id="calcCustName">عرض سعر</h3><button class="btn small" type="button" id="calcBack" hidden>رجوع لملف العميل</button></div>
       <div class="grid2"><label>اسم العميل<input id="q_name" placeholder="اختياري"></label><label>السيارة<input id="q_car" placeholder="مثل: كامري 2026 GLE رمادي"></label></div>
-      <div class="actions"><button class="btn small primary" type="button" id="calcImg">صورة عرض السعر</button><button class="btn small" type="button" id="calcPrep">رسالة نصية</button></div>
+      <div class="actions"><button class="btn small primary" type="button" id="calcImg">📤 صورة الحسبة للعميل</button><button class="btn small" type="button" id="calcPrep">رسالة نصية</button></div>
       <div id="imgOut" hidden style="display:flex;flex-direction:column;gap:8px">
         <img id="quoteImg" alt="صورة عرض السعر" style="width:100%;max-width:420px;border-radius:12px;border:1px solid var(--line);align-self:center">
-        <div class="actions"><button class="btn small primary" type="button" id="imgSave">حفظ الصورة</button></div>
-        <span class="hint">اضغط «حفظ الصورة»، أو اضغط على الصورة مطوّلاً واحفظها، وبعدها أرسلها للعميل بالواتساب.</span>
+        <div class="actions"><button class="btn primary" type="button" id="imgShare" style="background:#128C4A;border-color:#128C4A">📤 مشاركة للعميل (واتساب)</button><button class="btn small" type="button" id="imgSave">حفظ الصورة</button></div>
+        <span class="hint">اضغط «مشاركة» واختر واتساب ثم العميل. (من الكمبيوتر: تنحفظ الصورة وترسلها من واتساب ويب)</span>
       </div>
       <div id="calcOut" hidden style="display:flex;flex-direction:column;gap:8px">
         <textarea id="calcTxt" rows="7"></textarea>
@@ -1073,8 +1073,14 @@ $("#editForm").addEventListener("submit",async e=>{e.preventDefault();if(!db||!c
   if(await save(()=>db.collection("haraj_edits").add({adTitle:title,adUrl:url,change,status:"معتمد",createdAt:Date.now()}),"اعتمدت التعديل")){$("#e_change").value="";$("#e_url").value=""}});
 $("#calcImg").onclick=async()=>{const b=$("#calcImg");b.disabled=true;b.textContent="أجهّز الصورة…";
   try{const blob=await drawQuote();if(!blob){toast("الحاسبة ما فتحت بعد");return}quoteBlob=blob;const img=$("#quoteImg");if(img.dataset.u)URL.revokeObjectURL(img.dataset.u);
-    const u=URL.createObjectURL(blob);img.dataset.u=u;img.src=u;$("#imgOut").hidden=false;$("#calcOut").hidden=true;$("#imgOut").scrollIntoView({block:"nearest"})}
-  catch(e){toast("ما قدرت أسوي الصورة")}finally{b.disabled=false;b.textContent="صورة عرض السعر"}};
+    const u=URL.createObjectURL(blob);img.dataset.u=u;img.src=u;$("#imgOut").hidden=false;$("#calcOut").hidden=true;$("#imgShare").scrollIntoView({block:"center",behavior:"smooth"})}
+  catch(e){toast("ما قدرت أسوي الصورة")}finally{b.disabled=false;b.textContent="📤 صورة الحسبة للعميل"}};
+$("#imgShare").onclick=async()=>{if(!quoteBlob)return;const qn=$("#q_name").value.trim()||"عميل";
+  const file=new File([quoteBlob],`حسبة-${qn}.png`,{type:"image/png"});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"حسبة سماء الرياض",text:"حسبة التقسيط من معرض سماء الرياض للسيارات"});return}}
+  catch(e){if(e&&e.name==="AbortError")return}
+  const u=URL.createObjectURL(quoteBlob),a=document.createElement("a");a.href=u;a.download=file.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},1500);
+  toast("انحفظت الصورة، أرسلها للعميل من واتساب")};
 $("#imgSave").onclick=async()=>{if(!quoteBlob)return;const qn=$("#q_name").value.trim()||"عميل";
   try{const dl=await claude.use("downloads");if(!dl){toast("اضغط على الصورة مطوّلاً واحفظها");return}await dl.save({filename:`عرض-سعر-${qn}.png`,data:quoteBlob});toast("انحفظت الصورة")}
   catch(e){toast("اضغط على الصورة مطوّلاً واحفظها")}};
@@ -1124,7 +1130,7 @@ $("#cmdForm").addEventListener("submit",async e=>{e.preventDefault();const t=$("
   catch(err){const c=err&&err.code;toast(c==="rate_limited"?"كثرت الطلبات، جرّب بعد شوي":c==="not_granted"?"لازم توافق على السماح عشان يشتغل الأمر السريع":"ما فهمت الأمر، جرّب تكتبه بشكل أوضح")}
   finally{b.disabled=false;b.textContent="نفّذ"}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
-try{const h=location.hash.slice(1);if(TABS.some(([k])=>k===h))tab=h}catch(e){}
+try{const h=location.hash.slice(1);if(TABS.some(([k])=>k===h))tab=h;if(tab==="calc")setTimeout(loadCalc,0)}catch(e){}
 render();
 
 (async()=>{
