@@ -149,6 +149,7 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--mu
 .qa4 .qsoc{width:100%;display:block}
 .qah{width:794px;height:1123px;position:relative;background:#fff url(q_ahli.jpg) center/100% 100% no-repeat;direction:rtl;font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;color:#0b2a6b}
 .qah .f{position:absolute;height:20px;line-height:20px;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-align:center}
+.qah.qjz{background-image:url(q_jazira.jpg)}.qah .tick{position:absolute;font:900 17px Arial,sans-serif;color:#0b2a6b;line-height:1}.qah .f.wrap{white-space:normal;height:auto;line-height:16px;text-align:right}
 .qah .f.r{text-align:right}.qah .f.ltr{direction:ltr}
 .qah .circ{position:absolute;border:2px solid #0b2a6b;border-radius:50%}
 .qah .stamp{position:absolute;width:150px;opacity:.95}
@@ -296,7 +297,7 @@ details.part[open] summary::after{content:"－"}
     <form class="box" id="qForm">
       <div class="sec-head"><h3 id="qTitle">عرض سعر جديد</h3><button class="btn small" type="button" id="qNew">عرض جديد</button></div>
       <div class="grid2">
-        <label style="grid-column:1/-1">النموذج<select id="qf_tpl"><option value="sama">نموذج المعرض</option><option value="ahli">نموذج البنك الأهلي (SNB)</option></select></label>
+        <label style="grid-column:1/-1">النموذج<select id="qf_tpl"><option value="sama">نموذج المعرض</option><option value="ahli">نموذج البنك الأهلي (SNB)</option><option value="jazira">نموذج بنك الجزيرة (التمويل التأجيري)</option></select></label>
         <label>العميل في اللوحة (اختياري)<select id="qf_cust"></select></label>
         <label>التاريخ<input id="qf_date" type="date"></label>
         <label>اسم المندوب<input id="qf_rep" list="repList" placeholder="اكتب أو اختر"></label>
@@ -324,6 +325,8 @@ details.part[open] summary::after{content:"－"}
           <label>ملاحظات<input id="qf_notes"></label>
           <label>المدينة<input id="qf_city" value="الرياض"></label>
           <label>الشارع<input id="qf_street" value="شارع المعارض - حي الشفاء"></label>
+          <label class="jzOnly">الحي<input id="qf_dist" placeholder="الشفاء"></label>
+          <label class="jzOnly">اسم الفرع<input id="qf_branch" value="الرياض"></label>
           <label>ص.ب<input id="qf_pob" class="num"></label>
           <label>الرمز البريدي<input id="qf_zip" class="num"></label>
           <span class="hint" style="grid-column:1/-1">نموذج الأهلي فيه سعر السيارة والضريبة والإجمالي بس، فرسوم اللوحات ما تنحسب فيه. قسم العميل وقسم البنك يبقون فاضيين لتوقيعهم.</span>
@@ -1008,7 +1011,7 @@ async function drawQuote(){const o=calcOffer();if(!o)return null;const r=o.r,f=o
 /* ---------- عروض الأسعار ---------- */
 const Q_DEF={iban1:"يصدر الشيك باسم (معرض سماء الرياض للسيارات) أو التحويل على الآيبان التالي:",b1:"بنك الراجحي",i1:"SA10 8000 0204 6080 1137 9587",b2:"بنك الأهلي",i2:"SA65100000 23500000366806",b3:"بنك الرياض",i3:"SA6220000002394061269940",tax:"300222772600003",title:"مشرف المبيعات",name:"عصام عبد الجليل",phone:"0554378456",email:"esamasade2@gmail.com"};
 let quotes=[],qSet=Object.assign({},Q_DEF),qEditId=null;
-const QF=["tpl","cust","date","rep","repph","to","car","year","unit","qty","fee","color","engine","gear","vin","specs","war","valid","pay","deliv","plates","icolor","load","cond","km","fuel","warm","wark","notes","city","street","pob","zip"];
+const QF=["tpl","cust","date","rep","repph","to","car","year","unit","qty","fee","color","engine","gear","vin","specs","war","valid","pay","deliv","plates","icolor","load","cond","km","fuel","warm","wark","notes","city","street","pob","zip","dist","branch"];
 const m2=n=>(Number(n)||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 function qRead(){const o={};QF.forEach(k=>o[k]=$("#qf_"+k).value.trim());let u=N(o.unit);if($("#qf_incl").checked)u=Math.round(u/1.15*100)/100;
   o.unitNet=u;o.qtyN=Math.max(1,N(o.qty)||1);o.sub=u*o.qtyN;o.vat=Math.round(o.sub*0.15*100)/100;o.feeN=o.tpl==="ahli"?0:N(o.fee);o.total=o.sub+o.feeN+o.vat;return o}
@@ -1061,7 +1064,34 @@ function tafqit(x){x=Math.round((Number(x)||0)*100)/100;let n=Math.floor(x),hal=
   if(m)p.push(tScale(m,"مليون","مليونان","ملايين","مليوناً"));if(t)p.push(tScale(t,"ألف","ألفان","آلاف","ألفاً"));if(r)p.push(b1000(r));
   let s=p.join(" و");if(hal)s+=(s?" و":"")+b1000(hal)+" هللة";return s}
 function fitAll(root){root.querySelectorAll(".qah .f").forEach(el=>{let fs=13;el.style.fontSize=fs+"px";while(el.scrollWidth>el.clientWidth+1&&fs>8){fs-=.5;el.style.fontSize=fs+"px"}})}
-function docHTML(q){return q.tpl==="ahli"?ahliHTML(q):quoteHTML(q)}
+function docHTML(q){return q.tpl==="ahli"?ahliHTML(q):q.tpl==="jazira"?jaziraHTML(q):quoteHTML(q)}
+function jaziraHTML(q){const S=qSet;
+  const F=(x1,x2,y,t,cls)=>t===""||t==null?"":`<div class="f ${cls||""}" style="left:${x1}px;width:${x2-x1}px;top:${y-10}px">${esc(t)}</div>`;
+  const T=(x,y,on)=>on?`<div class="tick" style="left:${x-7}px;top:${y-10}px">✓</div>`:"";
+  const used=q.cond==="مستعملة",plates=q.feeN>0;
+  const st=String(q.street||"").replace(/\s*[-،,]\s*حي.*$/,"").trim();
+  const dist=q.dist||((String(q.street||"").match(/حي\s*(.+)$/)||[])[1]||"");
+  const rep=q.rep||S.name,ph=q.repph||S.phone;
+  return `<div class="qah qjz">
+  ${F(452,694,262,q.car)}${F(198,370,262,q.color)}${F(35,118,262,q.icolor)}
+  ${F(452,714,285,q.year)}${F(248,366,285,q.load)}${T(185,285,!used)}
+  ${F(248,696,307,q.year)}${T(185,307,used)}
+  ${F(248,697,330,used?q.vin:(q.vin||""),"ltr")}${F(80,190,330,q.km,"ltr")}
+  <div class="f wrap" style="left:36px;width:640px;top:347px">${esc(q.specs||"")}</div>
+  ${F(492,758,450,m2(q.unitNet*q.qtyN),"ltr")}${F(262,484,450,m2(q.vat),"ltr")}${F(35,254,450,q.feeN?m2(q.feeN):"","ltr")}
+  ${F(160,570,477,tafqit(q.total))}
+  ${F(492,712,500,q.warm)}${F(100,252,500,q.wark)}
+  ${T(687,522,plates)}${T(421,522,!plates)}
+  ${F(36,700,566,q.notes,"r")}
+  ${F(388,650,611,"معرض سماء الرياض للسيارات")}${F(35,322,611,q.branch)}
+  ${F(36,716,634,[q.city,st,dist?"حي "+dist:""].filter(Boolean).join(" - "))}
+  ${F(492,718,657,q.city)}${F(262,450,657,st)}${F(35,222,657,dist)}
+  ${F(492,722,679,q.pob)}${F(262,416,679,q.zip)}${F(35,212,679,ph,"ltr")}
+  ${F(262,660,703,rep)}
+  ${F(492,720,731,fmtD(q.date||todayStr()))}
+  <img class="stamp" src="q_stamp_blue.png" alt="" style="left:48px;top:700px;width:118px">
+</div>`}
+
 function ahliHTML(q){const S=qSet;
   const F=(x1,x2,y,t,cls)=>t===""||t==null?"":`<div class="f ${cls||""}" style="left:${x1}px;width:${x2-x1}px;top:${y-14}px">${esc(t)}</div>`;
   const [yy,mm,dd]=(q.date||todayStr()).split("-");const used=q.cond==="مستعملة";
@@ -1082,21 +1112,21 @@ function ahliHTML(q){const S=qSet;
   ${F(650,697,602,String(+dd||""))}${F(605,645,602,String(+mm||""))}${F(552,601,602,yy)}
   <img class="stamp" src="q_stamp_blue.png" alt="" style="left:140px;top:556px">
 </div>`}
-function qPreview(){const q=qRead(),ah=q.tpl==="ahli";["qf_toL","qf_feeL","qf_warL"].forEach(i=>$("#"+i).hidden=ah);$("#ahliF").hidden=!ah;$("#qPrevIn").innerHTML=docHTML(q);fitAll($("#qPrevIn"));const w=$("#qPrev").clientWidth||794,s=Math.min(1,w/794);
+function qPreview(){const q=qRead(),ah=q.tpl==="ahli",bk=q.tpl!=="sama";["qf_toL","qf_warL"].forEach(i=>$("#"+i).hidden=bk);$("#qf_feeL").hidden=ah;$("#ahliF").hidden=!bk;document.querySelectorAll(".jzOnly").forEach(e=>e.hidden=q.tpl!=="jazira");$("#qPrevIn").innerHTML=docHTML(q);fitAll($("#qPrevIn"));const w=$("#qPrev").clientWidth||794,s=Math.min(1,w/794);
   $("#qPrevIn").style.transform=`scale(${s})`;$("#qPrev").style.height=(1123*s)+"px";
   $("#qSum").innerHTML=`<div><span>السعر قبل الضريبة</span><b>${m2(q.sub)}</b></div><div><span>الضريبة 15%</span><b>${m2(q.vat)}</b></div><div class="total"><span>السعر الإجمالي</span><b>${m2(q.total)}</b></div>`}
-function qFill(d){d=d||{};const blank={tpl:"sama",icolor:"",load:"",cond:"جديد",km:"0",fuel:"",warm:"36",wark:"100,000",notes:"",city:"الرياض",street:"شارع المعارض - حي الشفاء",pob:"",zip:"",cust:"",date:todayStr(),to:"",car:"",year:"2026",unit:"",qty:"1",fee:"892",color:"",engine:"بنزين",gear:"قيرتماتيك",vin:"",specs:"",war:"3 سنوات او 100,000 كيلو متر أيهما أسبق",valid:"3 أيام",pay:"تحويل بنكي او شيك",deliv:"حسب التوفر بالمخزون",plates:"بدون تأمين مع لوحات"};
+function qFill(d){d=d||{};const blank={tpl:"sama",icolor:"",load:"",cond:"جديد",km:"0",fuel:"",warm:"36",wark:"100,000",notes:"",city:"الرياض",street:"شارع المعارض - حي الشفاء",pob:"",zip:"",dist:"",branch:"الرياض",cust:"",date:todayStr(),to:"",car:"",year:"2026",unit:"",qty:"1",fee:"892",color:"",engine:"بنزين",gear:"قيرتماتيك",vin:"",specs:"",war:"3 سنوات او 100,000 كيلو متر أيهما أسبق",valid:"3 أيام",pay:"تحويل بنكي او شيك",deliv:"حسب التوفر بالمخزون",plates:"بدون تأمين مع لوحات"};
   const v=Object.assign(blank,d);if(!v.rep)v.rep=qSet.name||"";if(!v.repph)v.repph=qSet.phone||"";repOpts();qCustOpts();QF.forEach(k=>{$("#qf_"+k).value=v[k]??""});$("#qf_incl").checked=false;$("#qImgOut").hidden=true;qPreview()}
 function qCustOpts(){const sel=$("#qf_cust"),cur=sel.value;sel.innerHTML=`<option value="">—</option>`+customers.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name),"ar")).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");sel.value=cur}
 function repOpts(){const m=new Map();if(qSet.name)m.set(qSet.name,qSet.phone||"");quotes.slice().sort((a,b)=>(a.updatedAt||0)-(b.updatedAt||0)).forEach(q=>{if(q.rep)m.set(q.rep,q.repph||"")});window.__reps=m;const dl=$("#repList");if(dl)dl.innerHTML=[...m.keys()].map(n=>`<option value="${esc(n)}">`).join("")}
 function qSetFill(){const S=qSet;$("#qs_iban1").value=S.iban1;["b1","i1","b2","i2","b3","i3","tax","title","name","phone","email"].forEach(k=>$("#qs_"+k).value=S[k]||"")}
 function renderQuotes(){const l=quotes.slice().sort((a,b)=>(b.no||0)-(a.no||0));
-  $("#qList").innerHTML=l.length?l.map(q=>rowShell(q.id,"q",`عرض رقم ${q.no||"—"} · ${q.tpl==="ahli"?"البنك الأهلي"+(q.custName?" · "+esc(q.custName):""):esc(q.to||q.custName||"")}`,`<span class="num">${m2(q.total)}</span>`,`<span>${esc(q.car||"")} ${esc(q.year||"")}</span><span>${esc(fmtD(q.date))}</span>${q.custName?`<span>العميل: ${esc(q.custName)}</span>`:""}`)).join(""):empty("ما فيه عروض محفوظة. عبّ النموذج فوق واضغط «حفظ العرض».")}
+  $("#qList").innerHTML=l.length?l.map(q=>rowShell(q.id,"q",`عرض رقم ${q.no||"—"} · ${q.tpl==="jazira"?"بنك الجزيرة"+(q.custName?" · "+esc(q.custName):""):q.tpl==="ahli"?"البنك الأهلي"+(q.custName?" · "+esc(q.custName):""):esc(q.to||q.custName||"")}`,`<span class="num">${m2(q.total)}</span>`,`<span>${esc(q.car||"")} ${esc(q.year||"")}</span><span>${esc(fmtD(q.date))}</span>${q.custName?`<span>العميل: ${esc(q.custName)}</span>`:""}`)).join(""):empty("ما فيه عروض محفوظة. عبّ النموذج فوق واضغط «حفظ العرض».")}
 function openQuote(c){closeSheet();tab="quotes";render();window.scrollTo(0,0);qEditId=null;$("#qTitle").textContent="عرض سعر جديد";
   if(!c){qFill({});return}
   const s=(c.deal&&c.deal.stockId&&stock.find(x=>x.id===c.deal.stockId))||null,f=c.finance||{};
   qFill({cust:c.id,to:f.bank||String(c.name||"").replace(/\(مثال\)/,"").trim(),car:s?[s.car,s.trim].filter(Boolean).join(" "):((hasDeal(c)&&c.deal.car)||c.car||""),year:s?s.year:"2026",color:s?s.color:"",vin:s?s.vin:"",unit:hasDeal(c)?c.deal.price:(s&&N(s.price)?s.price:"")});
-  if(/أهلي|اهلي|SNB/i.test(f.bank||"")){$("#qf_tpl").value="ahli"}
+  if(/أهلي|اهلي|SNB/i.test(f.bank||"")){$("#qf_tpl").value="ahli"}else if(/جزيرة|جزيره|jazira/i.test(f.bank||"")){$("#qf_tpl").value="jazira"}
   if(hasDeal(c)||(s&&N(s.price)))$("#qf_incl").checked=true;qPreview()}
 let libsP=null;function loadLibs(){if(libsP)return libsP;const add=u=>new Promise((res,rej)=>{const s=document.createElement("script");s.src=u;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
   libsP=add("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js").then(()=>add("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")).catch(e=>{libsP=null;throw e});return libsP}
@@ -1104,7 +1134,7 @@ async function qCanvas(){await loadLibs();try{await document.fonts.ready}catch(e
   const host=document.createElement("div");host.style.cssText="position:fixed;left:-10000px;top:0;width:794px";host.innerHTML=docHTML(qRead());document.body.appendChild(host);fitAll(host);
   await Promise.all([...host.querySelectorAll("img")].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));
   try{return await html2canvas(host.firstElementChild,{scale:2,backgroundColor:"#ffffff",useCORS:true})}finally{host.remove()}}
-function qName(){const q=qRead();return `عرض-سعر-${(q.tpl==="ahli"?"الأهلي-"+(customers.find(c=>c.id===q.cust)||{name:""}).name:q.to)||"عميل"}`.replace(/-$/,"")+`-${q.date||todayStr()}`;}
+function qName(){const q=qRead();return `عرض-سعر-${(q.tpl!=="sama"?(q.tpl==="ahli"?"الأهلي-":"الجزيرة-")+(customers.find(c=>c.id===q.cust)||{name:""}).name:q.to)||"عميل"}`.replace(/-$/,"")+`-${q.date||todayStr()}`;}
 function qNameOld(){const q=qRead();return `عرض-سعر-${(q.to||"عميل").replace(/[\\/:*?"<>|]/g,"")}-${q.date||todayStr()}`}
 async function qSaveFile(name,blob,okMsg){try{const dl=await claude.use("downloads");if(!dl)throw 0;await dl.save({filename:name,data:blob});toast(okMsg);return true}catch(e){return false}}
 async function copy(text,msg){try{await navigator.clipboard.writeText(text);toast(msg)}catch(e){const el=$("#tplTxt")||$("#wTxt");if(el){el.focus();el.select()}toast("ظلّل النص وانسخه")}}
@@ -1197,7 +1227,7 @@ $("#qForm").addEventListener("submit",async e=>{e.preventDefault();if(!db||!canW
   let ok;if(qEditId){ok=await save(()=>db.doc("quotes/"+qEditId).update(data),"تم حفظ التعديل")}
   else{data.no=quotes.reduce((m,x)=>Math.max(m,x.no||0),0)+1;data.createdAt=Date.now();let ref;ok=await save(async()=>{ref=await db.collection("quotes").add(data)},"انحفظ العرض رقم "+data.no);
     if(ok){qEditId=ref.id;$("#qTitle").textContent="عرض رقم "+data.no;$("#qf_incl").checked=false;$("#qf_unit").value=q.unitNet;
-      if(c)db.doc("customers/"+c.id).update({updatedAt:Date.now(),notes:(c.notes||[]).concat([{t:Date.now(),text:`عرض سعر رقم ${data.no} لـ ${q.tpl==="ahli"?"البنك الأهلي":q.to}: ${q.car} ${q.year}، الإجمالي ${m2(q.total)} ريال`}])}).catch(()=>{})}}});
+      if(c)db.doc("customers/"+c.id).update({updatedAt:Date.now(),notes:(c.notes||[]).concat([{t:Date.now(),text:`عرض سعر رقم ${data.no} لـ ${q.tpl==="ahli"?"البنك الأهلي":q.tpl==="jazira"?"بنك الجزيرة":q.to}: ${q.car} ${q.year}، الإجمالي ${m2(q.total)} ريال`}])}).catch(()=>{})}}});
 $("#qPdf").onclick=async()=>{const b=$("#qPdf");b.disabled=true;b.textContent="أجهّز الملف…";
   try{const cv=await qCanvas();const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:"p",unit:"mm",format:"a4"});pdf.addImage(cv.toDataURL("image/jpeg",0.92),"JPEG",0,0,210,297);
     const ok=await qSaveFile(qName()+".pdf",pdf.output("blob"),"انحفظ ملف PDF");if(!ok){const img=$("#qImgOut");img.src=cv.toDataURL("image/png");img.hidden=false;toast("ما قدرت أحفظ الملف. اضغط على الصورة مطوّلاً واحفظها")}}
