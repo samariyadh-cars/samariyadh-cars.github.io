@@ -7,7 +7,7 @@
 <title>متابعات سماء الرياض</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@800;900&family=Saira:wght@600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@800;900&family=Saira:wght@600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;700&family=Noto+Naskh+Arabic:wght@600;700&display=swap">
 <style>
 /* Layout: one narrow work column, phone-first. Sticky section tabs; "الرئيسية" is the daily queue, each other tab is one book of records. */
 :root{
@@ -107,6 +107,23 @@ label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--mu
 .hint{font-size:.82rem;color:var(--muted)}
 .cmd{border-color:var(--sky);background:var(--sky-soft)}
 /* عرض السعر — ورقة A4 بنفس نموذج المعرض */
+
+.ha4{position:relative;width:794px;height:1123px;background:#fff url(h_bg.jpg) center/100% 100% no-repeat;color:#000;direction:rtl;font-family:"Noto Naskh Arabic","Times New Roman",Tahoma,serif;font-weight:700;overflow:hidden}
+.ha4 .hc{position:absolute;top:178px;right:100px;left:48px}
+.ha4 .hd{font-size:18px;text-align:right}
+.ha4 .ht{font-size:34px;text-align:center;margin:18px 0 6px;font-weight:700}
+.ha4 .hto{display:flex;justify-content:space-between;align-items:baseline;font-size:20px;gap:20px;padding-left:40px}
+.ha4 .hb{font-size:21px;line-height:1.75;margin-top:34px;text-align:right}
+.ha4 table{width:100%;border-collapse:collapse;margin-top:40px;font-size:19px}
+.ha4 th,.ha4 td{border:1.5px solid #000;padding:3px 8px;text-align:center;height:34px}
+.ha4 th{font-size:21px}
+.ha4 td.vin{font-family:"Times New Roman",serif;direction:ltr;font-size:21px}
+.ha4 .hk{text-align:center;font-size:20px;margin-top:22px}
+.ha4 .hsg{position:absolute;left:132px;top:842px;width:180px}
+.ha4 .hst{position:absolute;left:515px;top:900px;width:215px}
+.lrow{display:grid;grid-template-columns:1.4fr 1fr 1.2fr .8fr auto;gap:6px;align-items:end}
+.lrow label{font-size:12px}
+@media(max-width:560px){.lrow{grid-template-columns:1fr 1fr}.lrow .x{grid-column:1/-1}}
 .qprev{width:100%;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:#8a959e}
 .qprev-in{transform-origin:top right;width:794px}
 .qa4{width:794px;height:1123px;background:#fff;color:#000;direction:rtl;font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;padding:20px 30px 18px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.35}
@@ -326,6 +343,35 @@ details.part[open] summary::after{content:"－"}
     <section><div class="sec-head"><h2>العروض المحفوظة</h2></div><div class="list" id="qList"></div></section>
   </div>
 
+  <!-- خطابات الحجز -->
+  <div class="view" id="v-letters" hidden>
+    <form class="box" id="lForm" onsubmit="return false">
+      <div class="sec-head"><h3 id="lTitle">خطاب حجز جديد</h3><button class="btn small" type="button" id="lNew">خطاب جديد</button></div>
+      <div class="grid2">
+        <label>التاريخ<input type="date" id="l_date"></label>
+        <label>السادة /<input id="l_to" placeholder="مثل: معرض العملاق للسيارات"></label>
+        <label>التسليم إلى<select id="l_mode"><option value="transport">شركة نقل (نقليات)</option><option value="person">شخص (اسم وهوية)</option><option value="none">بدون (الجهة نفسها)</option></select></label>
+        <label id="l_carrierL">اسم النقليات<input id="l_carrier" placeholder="مثل: الدمعان"></label>
+        <label id="l_personL" hidden>اسم الشخص<input id="l_person" placeholder="مثل: عصام احمد ماهر"></label>
+        <label id="l_pidL" hidden>رقم الهوية<input id="l_pid" inputmode="numeric" dir="ltr"></label>
+      </div>
+      <h3 style="margin:14px 0 6px">السيارات</h3>
+      <div id="l_rows" style="display:flex;flex-direction:column;gap:10px"></div>
+      <div class="actions" style="margin-top:8px"><button class="btn small" type="button" id="lAddRow">+ إضافة سيارة</button>
+        <select id="l_stock" style="max-width:260px"><option value="">+ إضافة من المخزون…</option></select></div>
+      <label style="display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;margin-top:10px;font-weight:600"><input type="checkbox" id="l_stamp" checked style="width:22px;height:22px;flex:none;margin:0"> إضافة الختم والتوقيع</label>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn primary" type="button" id="lSave">حفظ الخطاب</button>
+        <button class="btn primary" type="button" id="lShare" style="background:#128C4A;border-color:#128C4A">📤 مشاركة PDF</button>
+        <button class="btn small" type="button" id="lPdf">تحميل PDF</button>
+        <button class="btn small" type="button" id="lPng">حفظ كصورة</button>
+      </div>
+      <div class="qprev" id="lPrev" style="margin-top:12px"><div class="qprev-in" id="lPrevIn"></div></div>
+      <img id="lImgOut" alt="صورة الخطاب" hidden style="width:100%;margin-top:10px;border-radius:12px">
+    </form>
+    <div class="box"><h3>الخطابات المحفوظة</h3><div id="lList"></div></div>
+  </div>
+
   <!-- الحاسبة -->
   <div class="view" id="v-calc" hidden>
     <div class="box" id="calcCust">
@@ -453,7 +499,7 @@ const SHIP=["بانتظار الشحن","تم الشحن","وصلت المدين
 const WANT=["ينتظر","توفرت","مغلق"];
 const QUICK=["حدّث إعلانات حراج","صوّر السيارات الجديدة","كلّم الوكالة","راجع طلبات التمويل","رد على رسائل الواتساب"];
 const SIGN="\nمعرض سماء الرياض للسيارات\n0554378456";
-const TABS=[["home","الرئيسية"],["customers","العملاء"],["finance","التقسيط"],["calc","الحاسبة"],["quotes","عروض الأسعار"],["deals","الصفقات"],["stock","المخزون"],["delivery","الشحن والتسليم"],["tasks","المهام"],["wanted","الطلبات"],["haraj","حراج"]];
+const TABS=[["home","الرئيسية"],["customers","العملاء"],["finance","التقسيط"],["calc","الحاسبة"],["quotes","عروض الأسعار"],["letters","خطابات الحجز"],["deals","الصفقات"],["stock","المخزون"],["delivery","الشحن والتسليم"],["tasks","المهام"],["wanted","الطلبات"],["haraj","حراج"]];
 const STOCK_ST=["متوفرة","محجوزة","مباعة"];
 const CALC_URL="https://claude.ai/artifact/89LYnRy7QMZodEh4ex5T22";
 const HARAJ_URL="https://haraj.com.sa/users/"+encodeURIComponent("مندوب مبيعات كاش واقساط1");
@@ -664,7 +710,7 @@ async function fireTask(id,btn,label,onOk){
   catch(e){const c=e&&e.code;toast(c==="not_in_manifest"||c==="approval_required"?"لازم توافق على السماح للوحة تشغّل المهمة":c==="server_not_connected"||c==="needs_reauth"?"الربط مع Claude Code Remote مو مفعّل":c==="server_unavailable"||c==="upstream_error"?"ما تأكدت إن الطلب وصل. لا تعيده الحين، انتظر الإشعار":"ما قدرت أبدأ، قلها لـ Claude في المحادثة")}
   finally{btn.disabled=false;btn.textContent=old}}
 function render(){
-  if(typeof renderQuotes==="function")renderQuotes();
+  if(typeof renderQuotes==="function")renderQuotes();if(typeof renderLetters==="function")renderLetters();
   const ae=document.activeElement,aid=ae&&ae.id,selS=ae&&ae.selectionStart,selE=ae&&ae.selectionEnd;
   renderHaraj();renderHarajTab();renderTabs();
   if(aid&&document.activeElement!==document.getElementById(aid)){const el=document.getElementById(aid);if(el&&!el.closest(".sheet")){el.focus();try{el.setSelectionRange(selS,selE)}catch(e){}}}renderHome();renderCustomers();renderFinance();renderDeals();renderStock();renderDelivery();renderTasks();renderWanted();
@@ -1031,7 +1077,7 @@ async function copy(text,msg){try{await navigator.clipboard.writeText(text);toas
 
 /* ---------- events ---------- */
 document.addEventListener("click",async e=>{
-  const tb=e.target.closest("[data-tab]");if(tb){tab=tb.dataset.tab;if(tab==="calc"){openCalc(null);return}if(tab==="quotes"){render();qCustOpts();if(!$("#qPrevIn").innerHTML)qFill({});else qPreview();window.scrollTo(0,0);return}render();window.scrollTo(0,0);return}
+  const tb=e.target.closest("[data-tab]");if(tb){tab=tb.dataset.tab;if(tab==="calc"){openCalc(null);return}if(tab==="letters"){render();lStockOpts();lPreview();window.scrollTo(0,0);return}if(tab==="quotes"){render();qCustOpts();if(!$("#qPrevIn").innerHTML)qFill({});else qPreview();window.scrollTo(0,0);return}render();window.scrollTo(0,0);return}
   const r=e.target.closest("[data-open]");if(r&&db){if(r.dataset.open==="w"){const w=wanted.find(x=>x.id===r.dataset.id);if(w)showWanted(w)}else if(r.dataset.open==="q"){const q=quotes.find(x=>x.id===r.dataset.id);if(q){qEditId=q.id;$("#qTitle").textContent="عرض رقم "+(q.no||"");const d={};QF.forEach(k=>d[k]=q[k]??"");qFill(d);window.scrollTo(0,0)}}else if(r.dataset.open==="s"){const s=stock.find(x=>x.id===r.dataset.id);if(s)showStockForm(s)}else{const c=customers.find(x=>x.id===r.dataset.id);if(c)showDetail(c)}return}
   const f=e.target.closest("[data-f]");if(f){filter=f.dataset.f;render();return}
   const ff=e.target.closest("[data-ff]");if(ff){finFilter=ff.dataset.ff;render();return}
@@ -1103,7 +1149,71 @@ $("#qPng").onclick=async()=>{const b=$("#qPng");b.disabled=true;b.textContent="�
   catch(e){toast("ما قدرت أجهّز الصورة، جرّب مرة ثانية")}finally{b.disabled=false;b.textContent="حفظ كصورة"}};
 $("#qsSave").onclick=async()=>{if(!db)return;const d={iban1:$("#qs_iban1").value.trim()};["b1","i1","b2","i2","b3","i3","tax","title","name","phone","email"].forEach(k=>d[k]=$("#qs_"+k).value.trim());
   if(await save(()=>db.doc("settings/quote").set(d),"انحفظت البيانات الثابتة")){qSet=Object.assign({},Q_DEF,d);qPreview()}};
-window.addEventListener("resize",()=>{if(tab==="quotes")qPreview()});qSetFill();
+window.addEventListener("resize",()=>{if(tab==="quotes")qPreview()});
+/* ---------- خطابات الحجز ---------- */
+let letters=[],lEditId=null,lCur=null;
+const lBlank=()=>({date:todayStr(),to:"",mode:"transport",carrier:"",person:"",pid:"",rows:[{car:"",color:"",vin:"",year:"2026"}],stamp:true});
+const arD=s=>String(s??"").replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+function lDateTxt(d){const p=String(d||todayStr()).split("-");return p.length===3?arD(`${+p[2]} / ${+p[1]} / ${p[0]}`)+" م":arD(d)}
+function lHTML(l){const rows=(l.rows||[]).filter(r=>r.car||r.vin||r.color),many=rows.length>1;
+  let to="";if(l.mode==="transport"&&l.carrier)to=" لنقليات "+esc(l.carrier);
+  let per="";if(l.mode==="person"&&l.person)per=`<br>إلى السيد / ${esc(l.person)}`+(l.pid?`<br>هوية رقم / ${esc(arD(l.pid))}`:"");
+  const body=`نفيدكم نحن معرض سماء الرياض للسيارات بأنه لا مانع لدينا من تسليم ${many?"السيارات والبطاقات الجمركية":"السيارة والبطاقة الجمركية"} الموضح بياناتها أدناه${to}${per}`;
+  const tr=(rows.length?rows:[{}]).map((r,i)=>`<tr><td>${rows.length?arD(i+1):""}</td><td>${esc(r.car||"")}</td><td>${esc(r.color||"")}</td><td class="vin">${esc(r.vin||"")}</td><td>${esc(arD(r.year||""))}</td></tr>`).join("");
+  return `<div class="ha4"><div class="hc"><div class="hd">التاريخ: ${lDateTxt(l.date)}</div><div class="ht">خطاب حجز</div>
+<div class="hto"><span>السادة / ${esc(l.to||"")}</span><span>المحترمين</span></div>
+<div class="hb">${body}</div>
+<table><thead><tr><th style="width:6%">م</th><th style="width:27%">نوع السيارة</th><th style="width:19%">اللون</th><th style="width:27%">الهيكل</th><th style="width:21%">موديل</th></tr></thead><tbody>${tr}</tbody></table>
+<div class="hk">مع الشكر والتقدير ..</div></div>${l.stamp!==false?`<img class="hsg" src="h_sign.png" alt=""><img class="hst" src="h_stamp.png" alt="">`:""}</div>`}
+function lRowsUI(){const l=lCur;$("#l_rows").innerHTML=l.rows.map((r,i)=>`<div class="lrow" data-i="${i}">
+<label>نوع السيارة<input data-k="car" value="${esc(r.car)}" placeholder="مثل: يارس"></label>
+<label>اللون<input data-k="color" value="${esc(r.color)}" placeholder="ابيض"></label>
+<label>الهيكل<input data-k="vin" value="${esc(r.vin)}" dir="ltr"></label>
+<label>موديل<input data-k="year" value="${esc(r.year)}" inputmode="numeric"></label>
+<button class="btn small x" type="button" data-lrm="${i}" ${l.rows.length<2?"disabled":""}>حذف</button></div>`).join("")}
+function lFill(l){lCur=JSON.parse(JSON.stringify(l));$("#l_date").value=lCur.date||todayStr();$("#l_to").value=lCur.to||"";$("#l_mode").value=lCur.mode||"transport";
+  $("#l_carrier").value=lCur.carrier||"";$("#l_person").value=lCur.person||"";$("#l_pid").value=lCur.pid||"";$("#l_stamp").checked=lCur.stamp!==false;$("#lImgOut").hidden=true;lRowsUI();lStockOpts();lPreview()}
+function lRead(){const l=lCur;l.date=$("#l_date").value;l.to=$("#l_to").value.trim();l.mode=$("#l_mode").value;l.carrier=$("#l_carrier").value.trim();l.person=$("#l_person").value.trim();l.pid=$("#l_pid").value.trim();l.stamp=$("#l_stamp").checked;
+  document.querySelectorAll("#l_rows .lrow").forEach(el=>{const r=l.rows[+el.dataset.i];el.querySelectorAll("[data-k]").forEach(i=>r[i.dataset.k]=i.value.trim())});return l}
+function lPreview(){if(!lCur)return;const l=lRead();$("#l_carrierL").hidden=l.mode!=="transport";$("#l_personL").hidden=$("#l_pidL").hidden=l.mode!=="person";
+  $("#lPrevIn").innerHTML=lHTML(l);const w=$("#lPrev").clientWidth||794,s=Math.min(1,w/794);$("#lPrevIn").style.transform=`scale(${s})`;$("#lPrev").style.height=(1123*s)+"px"}
+function lStockOpts(){const sel=$("#l_stock");sel.innerHTML=`<option value="">+ إضافة من المخزون…</option>`+stock.filter(s=>s.status!=="مباعة").map(s=>`<option value="${esc(s.id)}">${esc(stockLabel(s))}${s.vin?" · "+esc(s.vin):""}</option>`).join("")}
+function renderLetters(){const el=$("#lList");if(!el)return;const l=letters.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  el.innerHTML=l.length?l.map(x=>`<div class="trow"><div class="tx"><b>خطاب ${x.no?"رقم "+esc(x.no)+" · ":""}${esc(x.to||"—")}</b><br><span class="hint">${esc(x.date||"")} · ${esc((x.rows||[]).map(r=>[r.car,r.vin].filter(Boolean).join(" ")).join("، "))}</span></div>
+<div class="actions"><button class="btn small" type="button" data-lopen="${esc(x.id)}">فتح</button><button class="btn small" type="button" data-ldel="${esc(x.id)}">حذف</button></div></div>`).join(""):`<p class="hint">ما فيه خطابات محفوظة بعد.</p>`;
+  if(!lCur&&$("#l_date"))lFill(lBlank());else if(tab==="letters"&&document.activeElement&&!document.activeElement.closest("#lForm"))lStockOpts()}
+function lName(){const l=lRead();return `خطاب-حجز-${(l.to||"").replace(/[\\/:*?"<>|]/g,"").trim()||"جهة"}-${l.date||todayStr()}`}
+async function lCanvas(){await loadLibs();try{await document.fonts.ready}catch(e){}
+  const host=document.createElement("div");host.style.cssText="position:fixed;left:-10000px;top:0;width:794px";host.innerHTML=lHTML(lRead());document.body.appendChild(host);
+  await Promise.all([...host.querySelectorAll("img")].map(i=>i.complete?0:new Promise(r=>{i.onload=i.onerror=r})));
+  const bg=new Image();bg.src="h_bg.jpg";await new Promise(r=>{if(bg.complete)r();bg.onload=bg.onerror=r});
+  try{return await html2canvas(host.firstElementChild,{scale:2,backgroundColor:"#ffffff",useCORS:true})}finally{host.remove()}}
+async function lPdfBlob(){const cv=await lCanvas();const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:"p",unit:"mm",format:"a4"});pdf.addImage(cv.toDataURL("image/jpeg",0.92),"JPEG",0,0,210,297);return {pdf:pdf.output("blob"),cv}}
+$("#lForm").addEventListener("input",e=>{if(e.target.id!=="l_stock")lPreview()});
+$("#lForm").addEventListener("change",e=>{if(e.target.id==="l_stock"){const s=stock.find(x=>x.id===e.target.value);e.target.value="";if(!s)return;lRead();const r={car:[s.car,s.trim].filter(Boolean).join(" "),color:s.color||"",vin:s.vin||"",year:s.year||"2026"};
+  const last=lCur.rows[lCur.rows.length-1];if(last&&!last.car&&!last.vin&&!last.color)lCur.rows[lCur.rows.length-1]=r;else lCur.rows.push(r);lRowsUI();lPreview();return}lPreview()});
+$("#lAddRow").onclick=()=>{lRead();const p=lCur.rows[lCur.rows.length-1]||{};lCur.rows.push({car:p.car||"",color:p.color||"",vin:"",year:p.year||"2026"});lRowsUI();lPreview();const ins=$("#l_rows").querySelectorAll('[data-k="vin"]');if(ins.length)ins[ins.length-1].focus()};
+$("#l_rows").addEventListener("click",e=>{const b=e.target.closest("[data-lrm]");if(!b)return;lRead();lCur.rows.splice(+b.dataset.lrm,1);lRowsUI();lPreview()});
+$("#lNew").onclick=()=>{lEditId=null;$("#lTitle").textContent="خطاب حجز جديد";lFill(lBlank())};
+$("#lList").addEventListener("click",async e=>{const o=e.target.closest("[data-lopen]");if(o){const x=letters.find(y=>y.id===o.dataset.lopen);if(!x)return;lEditId=x.id;$("#lTitle").textContent="خطاب "+(x.no?"رقم "+x.no:"");lFill(x);window.scrollTo(0,0);return}
+  const d=e.target.closest("[data-ldel]");if(d){if(d.dataset.armed!=="1"){d.dataset.armed="1";d.textContent="اضغط للتأكيد";return}if(await save(()=>db.doc("letters/"+d.dataset.ldel).delete(),"انحذف الخطاب")&&lEditId===d.dataset.ldel){lEditId=null;lFill(lBlank())}}});
+$("#lSave").onclick=async()=>{if(!db)return;const l=lRead();if(!l.to){toast("اكتب اسم الجهة (السادة /)");$("#l_to").focus();return}
+  const data={date:l.date,to:l.to,mode:l.mode,carrier:l.carrier,person:l.person,pid:l.pid,stamp:l.stamp,rows:l.rows.filter(r=>r.car||r.vin||r.color),updatedAt:Date.now()};
+  if(lEditId){await save(()=>db.doc("letters/"+lEditId).update(data),"تم حفظ التعديل")}
+  else{data.no=letters.reduce((m,x)=>Math.max(m,x.no||0),0)+1;data.createdAt=Date.now();let ref;if(await save(async()=>{ref=await db.collection("letters").add(data)},"انحفظ الخطاب رقم "+data.no)){lEditId=ref.id;$("#lTitle").textContent="خطاب رقم "+data.no}}};
+$("#lPdf").onclick=async()=>{const b=$("#lPdf");b.disabled=true;b.textContent="أجهّز الملف…";
+  try{const {pdf,cv}=await lPdfBlob();const ok=await qSaveFile(lName()+".pdf",pdf,"انحفظ ملف PDF");if(!ok){const img=$("#lImgOut");img.src=cv.toDataURL("image/png");img.hidden=false;toast("اضغط على الصورة مطوّلاً واحفظها")}}
+  catch(e){toast("ما قدرت أجهّز الملف، تأكد من الإنترنت وجرّب مرة ثانية")}finally{b.disabled=false;b.textContent="تحميل PDF"}};
+$("#lPng").onclick=async()=>{const b=$("#lPng");b.disabled=true;b.textContent="أجهّز الصورة…";
+  try{const cv=await lCanvas();const img=$("#lImgOut");img.src=cv.toDataURL("image/png");img.hidden=false;const blob=await new Promise(r=>cv.toBlob(r,"image/png"));const ok=await qSaveFile(lName()+".png",blob,"انحفظت الصورة");if(!ok)toast("اضغط على الصورة مطوّلاً واحفظها")}
+  catch(e){toast("ما قدرت أجهّز الصورة، جرّب مرة ثانية")}finally{b.disabled=false;b.textContent="حفظ كصورة"}};
+$("#lShare").onclick=async()=>{const b=$("#lShare");b.disabled=true;b.textContent="أجهّز الملف…";
+  try{const {pdf}=await lPdfBlob();const file=new File([pdf],lName()+".pdf",{type:"application/pdf"});
+    try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"خطاب حجز"});return}}catch(e){if(e&&e.name==="AbortError")return}
+    await qSaveFile(file.name,pdf,"انحفظ الملف، أرسله من واتساب")}
+  catch(e){toast("ما قدرت أجهّز الملف، تأكد من الإنترنت وجرّب مرة ثانية")}finally{b.disabled=false;b.textContent="📤 مشاركة PDF"}};
+window.addEventListener("resize",()=>{if(tab==="letters")lPreview()});
+qSetFill();
 $("#calcBack").onclick=()=>{const c=calcFor&&customers.find(x=>x.id===calcFor.id);tab="customers";render();if(c)showDetail(c)};
 $("#calcPrep").onclick=()=>{const o=calcOffer();if(!o){toast("الحاسبة ما فتحت بعد");return}$("#calcTxt").value=o.text;$("#calcOut").hidden=false;
   const wa=$("#calcWa");if(calcFor&&calcFor.phone){wa.hidden=false;wa.href=waLink(calcFor.phone,o.text)}else wa.hidden=true;$("#calcOut").scrollIntoView({block:"nearest"})};
@@ -1140,7 +1250,7 @@ render();
     try{const u=await claude.use("user");if(u){const w=await u.can("data.write");if(w===false)canWrite=false}}catch(e){}
     claude.use("mcp").then(m=>{mcp=m}).catch(()=>{});
     const sub=(col,fn)=>db.collection(col).onSnapshot(s=>{fn(s.docs.map(d=>Object.assign({id:d.id},d.data())));render()},()=>{});
-    sub("quotes",x=>quotes=x);db.doc("settings/quote").onSnapshot(d=>{qSet=Object.assign({},Q_DEF,d.exists?d.data():{});qSetFill();if(tab==="quotes")qPreview()},()=>{});
+    sub("quotes",x=>quotes=x);sub("letters",x=>letters=x);db.doc("settings/quote").onSnapshot(d=>{qSet=Object.assign({},Q_DEF,d.exists?d.data():{});qSetFill();if(tab==="quotes")qPreview()},()=>{});
     sub("haraj_msgs",x=>hMsgs=x);sub("haraj_ads",x=>hAds=x);sub("haraj_edits",x=>hEdits=x);
     db.doc("haraj/fetch").onSnapshot(d=>{hFetch=d.exists?d.data():null;renderHarajTab()},()=>{});
     db.doc("haraj/last").onSnapshot(d=>{haraj=d.exists?d.data():null;renderHaraj()},()=>{});
