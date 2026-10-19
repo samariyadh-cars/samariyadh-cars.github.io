@@ -117,6 +117,32 @@ dialog.cmpd{max-width:1040px}
 .cmpw tfoot td{border-bottom:0}
 .cmpw .btn{padding:8px 12px;font-size:14px}
 
+.pays{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.pays div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;border-top:4px solid var(--brass)}
+.pays h3{margin:0 0 4px;font-size:18px}.pays p{margin:0;color:var(--muted);font-size:15px}
+.banks{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.banks b{font-family:Cairo,Tajawal,sans-serif;margin-inline-end:4px}
+.banks span{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 14px;font-size:14px}
+.ship{margin-top:16px;background:var(--hero);color:#fff;border-radius:14px;padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.ship p{margin:0;color:#DCE6F0}
+.adm .tools{display:flex;gap:10px;flex-wrap:wrap;align-items:end;position:sticky;top:0;background:var(--surface);padding:6px 0 10px;z-index:3;border-bottom:1px solid var(--line)}
+.adm .tools label{flex:1;min-width:180px}
+.adm .cnt{display:flex;gap:8px;flex-wrap:wrap}
+.adm .cnt span{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:2px 12px;font-size:13px}
+.adm details{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:8px}
+.adm summary{cursor:pointer;color:var(--sky);font-weight:700;font-size:14px}
+.adm details[open] summary{margin-bottom:8px}
+.adm .row1.sold3{opacity:.75}
+.srch{display:flex;gap:8px;margin-bottom:16px}.srch input{flex:1;min-width:0;font:inherit;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+.want{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.want label{display:flex;flex-direction:column;gap:4px;font-weight:500}
+.want input,.want select{font:inherit;padding:9px 10px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%}
+.want .res{grid-column:1/-1}
+.btn.shr{background:transparent;color:var(--sky);border:2px solid var(--sky)}
+.mapb{margin-top:16px}
+.adm .ad{grid-column:1/-1;display:flex;flex-direction:column;gap:8px}
+.adm .ad textarea{font:inherit;font-size:15px;padding:10px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%;min-height:260px}
+.adm .ad .row2{display:flex;gap:8px;flex-wrap:wrap}
 @keyframes drive{from{transform:translateX(60px);opacity:0}to{transform:none;opacity:1}}
 </style>
 </head>
@@ -130,7 +156,7 @@ dialog.cmpd{max-width:1040px}
 <div class="hx-txt wrap">
 <span class="hx-eb">معرض سماء الرياض للسيارات</span>
 <h1>سيارتك الجديدة<br><span>تبدأ من هنا</span></h1>
-<p>تويوتا ولكزس موديلات 2025 و2026. كاش أو أقساط أو دفعتين، وشحن لجميع مدن المملكة.</p>
+<p>تويوتا ولكزس موديلات 2026. كاش أو أقساط أو دفعتين، وشحن لجميع مدن المملكة.</p>
 <div class="row"><a class="btn" href="#cars">تصفح السيارات</a><a class="btn ghost" href="#visit">موقع المعرض</a></div>
 </div>
 <div class="hx-pic"><img src="img/lx/a9aae767a49669cdc4da79357216e290.jpg" alt="لكزس IS350 بيضاء في معرض سماء الرياض"></div>
@@ -139,7 +165,8 @@ dialog.cmpd{max-width:1040px}
 
 <section id="cars"><div class="wrap">
 <h2>السيارات المتوفرة</h2>
-<p class="sub">اضغط على السيارة لعرض تفاصيلها وألوانها وسعرها.</p>
+<p class="sub">اضغط على السيارة لعرض تفاصيلها وألوانها وسعرها. ما لقيت اللي تبغاه؟ <a href="#want">اطلبها هنا</a>.</p>
+<div class="srch"><input id="q" type="search" placeholder="ابحث عن سيارة، مثال: برادو TXL2" aria-label="ابحث عن سيارة"></div>
 <div class="chips" id="chips">
 <button class="chip" data-f="all" aria-pressed="true">الكل</button>
 <button class="chip" data-f="تويوتا" aria-pressed="false">تويوتا</button>
@@ -153,13 +180,35 @@ dialog.cmpd{max-width:1040px}
 <div class="grid" id="grid"></div>
 </div></section>
 
+<section id="want"><div class="wrap">
+<h2>ما لقيت سيارتك؟ اطلبها</h2>
+<p class="sub">اكتب لنا السيارة اللي تبغاها، ونوفرها لك ونتواصل معك على واتساب.</p>
+<form class="want" id="wForm">
+<label>الاسم<input id="wName" type="text" autocomplete="name" required></label>
+<label>رقم الجوال<input id="wPhone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel" placeholder="05xxxxxxxx" required></label>
+<label>السيارة المطلوبة<input id="wCar" type="text" placeholder="مثال: لكزس LX600" required></label>
+<label>الفئة (اختياري)<input id="wTrim" type="text" placeholder="مثال: فل كامل"></label>
+<label>اللون المفضل (اختياري)<input id="wColor" type="text" placeholder="مثال: أبيض"></label>
+<label>طريقة الدفع<select id="wPay"><option>كاش</option><option>أقساط</option><option>دفعتين</option><option>تأجير منتهي بالتمليك</option></select></label>
+<label>المدينة<input id="wCity" type="text" placeholder="مثال: جدة"></label>
+<div class="res"><button class="btn" type="submit">أرسل الطلب عبر واتساب</button></div>
+<p class="note" id="wNote" style="grid-column:1/-1;margin:0">نرد عليك بالتوفر والموعد المتوقع.</p>
+</form>
+</div></section>
+
 <section id="pay"><div class="wrap">
-<h2>كاش أو تقسيط</h2>
-<p class="sub">اطلب كاش من بطاقة السيارة، أو عبّي بيانات التقسيط ونرسل لك القسط على واتساب.</p>
-<div class="info">
-<div><h3>كاش</h3><p>تدفع كامل المبلغ وتستلم سيارتك بأسرع وقت، من المعرض أو بالشحن لمدينتك.</p></div>
-<div><h3>تقسيط</h3><p>دفعة أولى ومدة تصل إلى 5 سنوات. الموافقة النهائية والنسبة حسب جهة التمويل.</p></div>
+<h2>طرق الدفع</h2>
+<p class="sub">اختر الطريقة اللي تناسبك، ونرتب لك كل شي من المعرض.</p>
+<div class="pays">
+<div><h3>كاش</h3><p>تدفع كامل المبلغ وتستلم سيارتك بأسرع وقت.</p></div>
+<div><h3>تقسيط</h3><p>دفعة أولى ومدة تصل إلى 5 سنوات، والموافقة حسب جهة التمويل.</p></div>
+<div><h3>دفعتين</h3><p>تدفع جزء الآن والباقي على دفعة ثانية متفق عليها.</p></div>
+<div><h3>تأجير منتهي بالتمليك</h3><p>قسط شهري مريح، وتتملك السيارة بنهاية العقد.</p></div>
 </div>
+<div class="banks" id="banks" hidden></div>
+<div class="ship"><p><b>نشحن لجميع مدن المملكة</b> — من المعرض في الرياض إلى باب بيتك.</p><a class="btn" id="shipWa" target="_blank" rel="noopener" href="#">اسأل عن الشحن لمدينتك</a></div>
+<h3 style="margin:28px 0 0;font-size:20px">اطلب تقسيط</h3>
+<p class="sub" style="margin-bottom:0">عبّي بياناتك ونرسل لك القسط على واتساب.</p>
 <div class="calc">
 <label>الاسم<input id="cName" type="text" autocomplete="name"></label>
 <label>رقم الجوال<input id="cPhone" type="tel" inputmode="tel" dir="ltr" autocomplete="tel" placeholder="05xxxxxxxx"></label>
@@ -175,12 +224,13 @@ dialog.cmpd{max-width:1040px}
 
 <section id="visit"><div class="wrap">
 <h2>زرنا في المعرض</h2>
-<p class="sub">نستقبلك للمعاينة وتجربة القيادة.</p>
+<p class="sub">حياك في المعرض، وإذا كنت خارج الرياض نشحن سيارتك لين باب بيتك.</p>
 <div class="info">
 <div><h3>العنوان</h3><p>الرياض، الشفاء، حي المروءة، شارع جبريل بن جميل، مقابل شيخ المعارض</p></div>
 <div><h3>ساعات العمل</h3><p>من 9 صباحًا إلى 1 ظهرًا<br>ومن 4 عصرًا إلى 9 مساءً</p></div>
 <div><h3>تواصل معنا</h3><p><a href="tel:0554378456" dir="ltr">0554378456</a><br>أو راسلنا على واتساب</p></div>
 </div>
+<a class="btn mapb" href="https://maps.app.goo.gl/XzDAF5c3vRzzVFhk8" target="_blank" rel="noopener">افتح موقع المعرض في خرائط قوقل</a>
 </div></section>
 
 <dialog class="dlg" id="dlg" aria-labelledby="dTitle">
@@ -195,6 +245,7 @@ dialog.cmpd{max-width:1040px}
 <ul class="specs" id="dSpecs"></ul>
 <div class="meta" id="dNoSpecs">للفئات والمواصفات التفصيلية تواصل معنا على واتساب.</div>
 <button class="btn cmp" id="dCmp" type="button" hidden>⇄ قارن فئات هذا الموديل</button>
+<button class="btn shr" id="dShare" type="button">شارك هذي السيارة</button>
 <div class="acts"><a class="btn" id="dCash" target="_blank" rel="noopener" href="#">اطلب كاش</a><a class="btn alt" id="dInst" target="_blank" rel="noopener" href="#">اطلب تقسيط</a></div>
 </div>
 </dialog>
@@ -213,6 +264,7 @@ dialog.cmpd{max-width:1040px}
 <footer>© معرض سماء الرياض للسيارات · <a href="privacy.html" style="color:inherit">سياسة الخصوصية</a></footer>
 <a class="btn float" id="floatWa" href="#">اطلب عبر واتساب</a>
 
+<script>window.__BUILT=1792435233333;</script>
 <script type="text/plain" id="mainjs">
 var NUM="966554378456",SHOP="معرض سماء الرياض للسيارات";
 var $=function(i){return document.getElementById(i)};
@@ -220,7 +272,7 @@ var T="تويوتا",L="لكزس",Y="2026";
 /* لإضافة بيانات سيارة: price:120000, colors:["أبيض","أسود"], imgs:["img/camry-1.jpg"], specs:[["المحرك","2.5L"]] */
 var COLHEX={"رصاصي فاتح":"#8E9BAA","أبيض بمقصورة جملي":"#F5F5F5","أخضر بمقصورة أحمر":"#4A5237","أخضر بمقصورة جملي":"#4A5237","أسود بمقصورة أحمر":"#111111","تيتانيوم بمقصورة أحمر":"#8A8780","رمادي بمقصورة جملي":"#6B7077","أزرق غامق بمقصورة جملي":"#14264A","أسود بمقصورة جملي":"#111111","رمادي بمقصورة بيج":"#6B7077","فضي بمقصورة بيج":"#C0C4C8","أبيض":"#F5F5F5","أسود":"#111111","فضي":"#C0C4C8","رمادي":"#6B7077","أزرق":"#1F3F73","أحمر":"#9B1C2B","بني":"#6B4A2B","ذهبي":"#B8902F","بيج":"#D8C7A3","تيتانيوم":"#8A8780","أزرق غامق":"#14264A","كحلي":"#14264A","برونزي":"#8B6B4A"};
 var DEFCOL=["أبيض","أسود","فضي","رمادي"];
-var DATA=window.__LIVE||{"ov": {"تويوتا كامري LE بنزين": {"price": 120000}, "تويوتا كورولا": {"status": "hidden"}, "تويوتا فورتشنر GX2 4X2 بنزين": {"colors": ["أبيض", "أسود", "فضي"]}, "تويوتا فورتشنر GX2 4X4 بنزين": {"colors": ["أبيض"]}, "تويوتا فورتشنر VX1 4X4 بنزين V6": {"colors": ["أسود"]}, "تويوتا فورتشنر GX2 4X4 ديزل": {"colors": ["أبيض"]}, "تويوتا فورتشنر VX2 4X4 ديزل": {"colors": ["أبيض"]}, "تويوتا فورتشنر VX2 بلس رادار 4X4 ديزل": {"colors": ["أبيض"]}, "تويوتا برادو TX2 4X4 بنزين": {"colors": ["أبيض", "أسود", "ذهبي"]}, "تويوتا برادو TXL2 4X4 ديزل": {"colors": ["ذهبي", "أسود"]}, "تويوتا برادو TXL3 4X4 بنزين": {"colors": ["أسود", "ذهبي"]}, "تويوتا برادو VXL3 4X4 بنزين": {"colors": ["ذهبي"]}, "تويوتا برادو أدفنشر 4X4 بنزين": {"colors": ["أسود", "رصاصي"]}, "تويوتا برادو أدفنشر 4X4 ديزل": {"colors": ["أبيض", "ذهبي"]}, "تويوتا برادو TXL1 4X4 بنزين": {"colors": ["أبيض", "أسود", "برونزي", "رمادي"]}, "تويوتا راف فور LE 4X4 بنزين": {"colors": ["أبيض", "ذهبي"]}, "تويوتا راف فور XLE 4X4 بنزين": {"colors": ["أبيض", "رمادي"]}, "تويوتا راف فور LE 4X4 هايبرد": {"colors": ["أبيض", "ذهبي"]}, "تويوتا راف فور XLE 4X4 هايبرد": {"colors": ["أبيض"]}, "تويوتا راف فور ادفنشر 4X4 هايبرد": {"colors": ["أسود"]}, "تويوتا رايز XLE بنزين": {"colors": ["أبيض", "أسود"]}, "تويوتا رايز ليميتد بنزين": {"colors": ["أبيض", "أسود", "رمادي"]}}, "extra": [{"b": "تويوتا", "n": "كورلا 20.0 طيس", "y": "2026", "type": "سيدان", "price": 80500, "colors": ["أبيض"], "imgs": ["img/lx/8215214fadff331a1d89fc042f3b231b.jpg", "img/lx/89853ca4dc8197c4b354aef8918c159a.jpg", "img/lx/646ad66a331a14285b1b8a59a4112028.jpg", "img/lx/7863f15cda1163bbefedf3f3209e2aa6.jpg", "img/lx/5481a299b05a46f5f5250849b96b1087.jpg", "img/lx/d074b680d0b21362ccf043d9b18ee74b.jpg", "img/lx/63d6b56c43441ea12ff780d06522b1f4.jpg", "img/lx/f2bd84832538db84759b6fcbec31bfa1.jpg"], "specs": [{"h": "المحرك والأداء"}, ["الوقود", "بنزين"], ["المحرك", "2.0 لتر"], ["القوة القصوى", "168 حصان عند 6,600 د.د"], ["العزم الأقصى", "200 ن.م عند 4,400 - 4,800 د.د"], ["ناقل الحركة", "CVT مع تحكم يدوي 10 سرعات"], ["مقاس الإطارات", "195/65R15"], ["الأبعاد (طول × عرض × ارتفاع)", "4630 × 1780 × 1435 مم"], ["كفاءة استهلاك الوقود", "20.3 كم/لتر"], ["سعة الخزان", "47 لتر"], {"h": "المزايا الخارجية"}, "جنوط حديد مقاس 15 بوصة", "أنوار أمامية هالوجين", "كشافات ضباب أمامية LED", "شبك أمامي أسود بتطعيمات كروم", "مرايات جانبية كهربائية بلون السيارة مع إشارات انعطاف، قابلة للطي يدويًا", "دخول بدون مفتاح (ريموت كنترول)", {"h": "المزايا الداخلية"}, "مقاعد قماش", "مكيف أمامي بتحكم يدوي", "فتحات تكييف خلفية", "مقود بأزرار تحكم بالنظام الصوتي", {"h": "الصوتيات والترفيه"}, "شاشة لمس 8 بوصة مع بلوتوث", "Apple CarPlay سلكي", "منفذ USB", "6 سماعات", {"h": "الأمان والراحة"}, "كاميرا خلفية", "وسائد هوائية للسائق والراكب الأمامي وجانبية أمامية", "مثبت سرعة", "حساسات خلفية", "فرشات أرضية قماش", "غطاء منطقة التحميل", "جهاز نفخ الإطارات", "منبه فاخر (بوري)", "حقيبة السلامة"]}]};
+var DATA=window.__LIVE||{"ov":{"تويوتا كامري LE بنزين":{"price":120000,"colors":["أبيض","أزرق غامق","أسود","فضي","تيتانيوم","تيتانيوم (داخلية سوداء)"]},"تويوتا كامري E بنزين":{"colors":["أبيض","أزرق غامق","أسود","فضي","تيتانيوم"]},"تويوتا كامري جراندي بنزين":{"colors":["أبيض","أسود","فضي","تيتانيوم"]},"تويوتا كامري E هايبرد":{"colors":["أبيض","فضي","تيتانيوم"]},"تويوتا كامري E Plus هايبرد":{"colors":["أبيض","فضي","رمادي"]},"تويوتا كامري LE هايبرد":{"colors":["أبيض","أسود","فضي","تيتانيوم","كحلي"]},"تويوتا كامري لوميير هايبرد":{"colors":["أبيض","أسود"]},"تويوتا كورولا 1.5 ستاندر":{"colors":["أبيض"]},"تويوتا كورولا 2.0 ستاندر":{"colors":["رمادي","رصاصي فاتح"]},"تويوتا كورولا 2.0 مطور":{"colors":["أبيض"]},"تويوتا يارس Y بنزين":{"colors":["أبيض","أسود","رمادي","رمادي بمقصورة بيج","فضي","فضي بمقصورة بيج"]},"تويوتا يارس Y+ بنزين":{"colors":["أبيض","أسود","رمادي"]},"تويوتا يارس YX بنزين":{"colors":["أبيض","رمادي","فضي"]},"تويوتا فورتشنر GX2 4X2 بنزين":{"colors":["أبيض","أسود","فضي"]},"تويوتا فورتشنر GX2 4X4 بنزين":{"colors":["أبيض"]},"تويوتا فورتشنر VX1 4X4 بنزين V6":{"colors":["أسود"]},"تويوتا فورتشنر GX2 4X4 ديزل":{"colors":["أبيض"]},"تويوتا فورتشنر VX2 4X4 ديزل":{"colors":["أبيض"]},"تويوتا فورتشنر VX2 بلس رادار 4X4 ديزل":{"colors":["أبيض"]},"تويوتا برادو TX2 4X4 بنزين":{"colors":["أبيض","أسود","ذهبي"]},"تويوتا برادو TXL2 4X4 ديزل":{"colors":["ذهبي","أسود"]},"تويوتا برادو TXL3 4X4 بنزين":{"colors":["أسود","ذهبي"]},"تويوتا برادو VXL3 4X4 بنزين":{"colors":["ذهبي"]},"تويوتا برادو أدفنشر 4X4 بنزين":{"colors":["أسود","رصاصي"]},"تويوتا برادو أدفنشر 4X4 ديزل":{"colors":["أبيض","ذهبي"]},"تويوتا برادو TXL1 4X4 بنزين":{"colors":["أبيض","أسود","برونزي","رمادي"]},"تويوتا لاندكروزر":{"status":"hidden"},"تويوتا راف فور LE 4X4 بنزين":{"colors":["أبيض","ذهبي"]},"تويوتا راف فور XLE 4X4 بنزين":{"colors":["أبيض","رمادي"]},"تويوتا راف فور LE 4X4 هايبرد":{"colors":["أبيض","ذهبي"]},"تويوتا راف فور XLE 4X4 هايبرد":{"colors":["أبيض"]},"تويوتا راف فور ادفنشر 4X4 هايبرد":{"colors":["أسود"]},"تويوتا رايز XLE بنزين":{"colors":["أبيض","أسود"]},"تويوتا رايز ليميتد بنزين":{"colors":["أبيض","أسود","رمادي"]},"تويوتا فيلوز بنزين":{"colors":["أبيض","أسود","رمادي","فضي","أحمر"]},"تويوتا كراون بريميوم هايبرد":{"colors":["أسود","تيتانيوم"]},"لكزس ES250 AA":{"colors":["أبيض","أزرق غامق","أزرق غامق بمقصورة جملي","أسود","أسود بمقصورة جملي","تيتانيوم","رمادي"]},"لكزس IS350 DD":{"colors":["أبيض"]},"لكزس ES350 CC":{"colors":["كحلي","رمادي"]},"لكزس NX350 AA":{"colors":["أبيض بمقصورة جملي","أخضر بمقصورة أحمر","أخضر بمقصورة جملي","أسود بمقصورة أحمر","تيتانيوم بمقصورة أحمر","رمادي بمقصورة جملي"]},"لكزس RX350 BB":{"status":"hidden"},"لكزس LX600 BB":{"status":"hidden"}},"extra":[{"b":"تويوتا","n":"كورلا 2.0 طيس","y":"2026","type":"سيدان","price":80500,"colors":["أبيض"],"imgs":["img/lx/8215214fadff331a1d89fc042f3b231b.jpg","img/lx/89853ca4dc8197c4b354aef8918c159a.jpg","img/lx/646ad66a331a14285b1b8a59a4112028.jpg","img/lx/7863f15cda1163bbefedf3f3209e2aa6.jpg","img/lx/5481a299b05a46f5f5250849b96b1087.jpg","img/lx/d074b680d0b21362ccf043d9b18ee74b.jpg","img/lx/63d6b56c43441ea12ff780d06522b1f4.jpg","img/lx/f2bd84832538db84759b6fcbec31bfa1.jpg"],"specs":[{"h":"المحرك والأداء"},["الوقود","بنزين"],["المحرك","2.0 لتر"],["القوة القصوى","168 حصان عند 6,600 د.د"],["العزم الأقصى","200 ن.م عند 4,400 - 4,800 د.د"],["ناقل الحركة","CVT مع تحكم يدوي 10 سرعات"],["مقاس الإطارات","195/65R15"],["الأبعاد (طول × عرض × ارتفاع)","4630 × 1780 × 1435 مم"],["كفاءة استهلاك الوقود","20.3 كم/لتر"],["سعة الخزان","47 لتر"],{"h":"المزايا الخارجية"},"جنوط حديد مقاس 15 بوصة","أنوار أمامية هالوجين","كشافات ضباب أمامية LED","شبك أمامي أسود بتطعيمات كروم","مرايات جانبية كهربائية بلون السيارة مع إشارات انعطاف، قابلة للطي يدويًا","دخول بدون مفتاح (ريموت كنترول)",{"h":"المزايا الداخلية"},"مقاعد قماش","مكيف أمامي بتحكم يدوي","فتحات تكييف خلفية","مقود بأزرار تحكم بالنظام الصوتي",{"h":"الصوتيات والترفيه"},"شاشة لمس 8 بوصة مع بلوتوث","Apple CarPlay سلكي","منفذ USB","6 سماعات",{"h":"الأمان والراحة"},"كاميرا خلفية","وسائد هوائية للسائق والراكب الأمامي وجانبية أمامية","مثبت سرعة","حساسات خلفية","فرشات أرضية قماش","غطاء منطقة التحميل","جهاز نفخ الإطارات","منبه فاخر (بوري)","حقيبة السلامة"]}],"set":{"banks":[]}};
 var TPL="";
 var cars=[
  {b:T,n:"كامري LE بنزين",y:"2026",type:"سيدان",colors:["أبيض", "أزرق غامق", "أسود", "فضي", "تيتانيوم", "تيتانيوم (داخلية سوداء)"],cimgs:{"أزرق غامق": ["img/cam-le-1-1.jpg", "img/cam-le-1-2.jpg", "img/cam-le-1-3.jpg"], "أسود": ["img/cam-le-2-1.jpg", "img/cam-le-2-2.jpg", "img/cam-le-2-3.jpg"], "فضي": ["img/cam-le-3-1.jpg", "img/cam-le-3-2.jpg", "img/cam-le-3-3.jpg"], "تيتانيوم": ["img/cam-le-4-1.jpg", "img/cam-le-4-2.jpg", "img/cam-le-4-3.jpg"], "تيتانيوم (داخلية سوداء)": ["img/cam-le-5-1.jpg", "img/cam-le-5-2.jpg", "img/cam-le-5-3.jpg"]},imgs:["img/cam-le-1.jpg", "img/cam-le-2.jpg", "img/cam-le-3.jpg", "img/cam-le-4.jpg", "img/cam-le-5.jpg", "img/cam-le-6.jpg", "img/cam-le-7.jpg", "img/cam-le-8.jpg", "img/cam-le-9.jpg"],specs:[{"h": "المحرك والأداء"}, ["الوقود", "بنزين"], ["المحرك", "2.5 لتر، 4 أسطوانات"], ["القوة القصوى", "201 حصان عند 6,600 د.د"], ["العزم الأقصى", "240 ن.م عند 4,000 - 5,000 د.د"], ["ناقل الحركة", "أوتوماتيكي 8 سرعات"], ["مقاس الإطارات", "215/55R17"], ["الأبعاد (طول × عرض × ارتفاع)", "4920 × 1840 × 1445 مم"], ["كفاءة استهلاك الوقود", "17.2 كم/لتر"], ["سعة الخزان", "60 لتر"], {"h": "المزايا الخارجية"}, "جنوط ألمنيوم مقاس 17 بوصة", "أنوار أمامية LED", "أنوار خلفية LED", "أنوار نهارية LED", "كشافات ضباب أمامية LED", "تعديل يدوي لمستوى إضاءة الأنوار الأمامية", "مرايات جانبية كهربائية بلون السيارة مع إشارات انعطاف وطي آلي", "شريط جانبي مطلي بالكروم", "جناح خلفي", {"h": "المزايا الداخلية"}, "مقاعد قماش مع تحكم كهربائي لمقعد السائق", "مقود مكسو بالجلد بأزرار تحكم بالصوت والهاتف والتعرف على الصوت", "عجلة قيادة تلسكوبية بتعديل يدوي", "مكيف أوتوماتيكي مستقل مع فتحات تكييف خلفية", "قفل مركزي للراكب الأمامي", "شاشة معلومات متعددة الاستخدامات 7 بوصة", "مقاعد خلفية قابلة للطي (60:40) مع مسند وسطي وحامل أكواب", "مرآة داخلية بتعتيم ذاتي", "إضاءة أرضية داخلية", "إضاءة داخلية محيطية على الأبواب الأمامية", {"h": "الصوتيات والترفيه"}, "شاشة لمس 8 بوصة مع بلوتوث", "Apple CarPlay لاسلكي", "منافذ USB (3 أمامية و2 خلفية)", "6 سماعات", {"h": "الأمان والراحة"}, "وسائد هوائية أمامية وجانبية وستائرية", "دخول ذكي مع زر تشغيل وإيقاف المحرك", "كاميرا خلفية مع نظام توجيه BGM", "حساسات أمامية وخلفية", "مثبت سرعة", "مكابح وقوف كهربائية EPB مع خاصية الوقوف المؤقت", "نظام الحماية في المواقف PKSB", "فتحة سقف كهربائية", "شاحن لاسلكي للهواتف", "ستارة خلفية كهربائية", "فرش حماية لصندوق الأمتعة", "فرشات أرضية قماش", "منبه فاخر (بوري)", "حقيبة السلامة"]},
@@ -298,6 +350,7 @@ function render(f){
     if(c.status==="hidden")return;
     if(!(f==="all"||c.b===f||c.type===f))return;
     if(curM!=="all"&&modelOf(c)!==curM)return;
+    var qv=($("q")&&$("q").value||"").trim().toLowerCase();if(qv&&qv.split(/\s+/).some(function(w){return (c.b+" "+c.n+" "+c.y+" "+c.type).toLowerCase().indexOf(w)<0}))return;
     if(multi&&c.b!==lastB){lastB=c.b;var hh=document.createElement("h3");hh.className="brandh";hh.textContent=c.b;g.appendChild(hh)}
     var d=document.createElement("article");d.className="card";
     d.innerHTML='<button class="pic" type="button"></button><div class="body"><h3><button class="ttl" type="button"></button></h3><div class="meta"></div><div class="price"></div><div class="acts"><a class="btn cash" target="_blank" rel="noopener">اطلب كاش</a><a class="btn alt inst" target="_blank" rel="noopener">اطلب تقسيط</a></div></div>';
@@ -430,6 +483,22 @@ function updCmpBar(){
 }
 (function(){var _r=render;render=function(f){_r(f);updCmpBar()}})();
 var gen=wa("السلام عليكم، أرغب بالاستفسار عن السيارات المتوفرة في "+SHOP);
+(function(){var S=(DATA&&DATA.set)||{},bk=(S.banks||[]).filter(Boolean),w=$("banks");if(bk.length){w.hidden=false;var b=document.createElement("b");b.textContent="جهات التمويل:";w.appendChild(b);bk.forEach(function(n){var s=document.createElement("span");s.textContent=n;w.appendChild(s)})}var sw=$("shipWa");if(sw)sw.href=wa("السلام عليكم، أبغى أعرف عن شحن السيارة لمدينتي من "+SHOP)})();
+var SITE="https://claude.ai/artifact/LNUPrPsoNDJfVVrctWwRUb";
+function carLink(c){return SITE+"#car="+encodeURIComponent(ck(c))}
+$("dShare").addEventListener("click",function(){if(!cur)return;var c=cur,b=$("dShare");var cols=(c.colors&&c.colors.length?c.colors:DEFCOL);var ks=[];(c.specs||[]).forEach(function(r){if(r instanceof Array&&ks.length<4&&/الوقود|المحرك|القوة|ناقل/.test(r[0]))ks.push("• "+r[0]+": "+r[1])});
+  var txt=c.b+" "+c.n+" موديل "+c.y+" جديدة"+(c.price&&c.status!=="sold"?"\n"+priceText(c):"")+"\nالألوان: "+cols.join("، ")+(ks.length?"\n"+ks.join("\n"):"")+"\nكاش، أقساط، دفعتين، تأجير منتهي بالتمليك — وشحن لجميع المدن\n"+SHOP+"\nشوف صورها في موقعنا (اكتب في البحث: "+c.n.split(/\s+/).slice(0,2).join(" ")+")";var url=SITE;
+  function done(m){b.textContent=m;setTimeout(function(){b.textContent="شارك هذي السيارة"},2200)}
+  if(navigator.share){navigator.share({title:c.b+" "+c.n,text:txt,url:url}).catch(function(){})}
+  else if(navigator.clipboard){navigator.clipboard.writeText(txt+"\n"+url).then(function(){done("تم نسخ الرابط")},function(){window.open(wa(txt+"\n"+url),"_blank")})}
+  else window.open(wa(txt+"\n"+url),"_blank")});
+function openFromHash(){var h=location.hash||"";var m=h.match(/car=([^&]+)/);if(!m)return;var k;try{k=decodeURIComponent(m[1])}catch(e){return}for(var i=0;i<cars.length;i++){if(ck(cars[i])===k&&cars[i].status!=="hidden"){openCar(i);return}}}
+$("q").addEventListener("input",function(){render(curF)});
+window.addEventListener("hashchange",openFromHash);setTimeout(openFromHash,0);
+$("wForm").addEventListener("submit",function(e){e.preventDefault();var v=function(i){return $(i).value.trim()};
+  if(!(v("wName")&&String(v("wPhone")).replace(/[^0-9]/g,"").length>=9&&v("wCar"))){$("wNote").textContent="اكتب اسمك ورقم جوالك والسيارة اللي تبغاها.";return}
+  var msg="السلام عليكم، أبغى أطلب سيارة غير موجودة في الموقع من "+SHOP+"\nالسيارة: "+v("wCar")+(v("wTrim")?"\nالفئة: "+v("wTrim"):"")+(v("wColor")?"\nاللون: "+v("wColor"):"")+"\nطريقة الدفع: "+v("wPay")+(v("wCity")?"\nالمدينة: "+v("wCity"):"")+"\nالاسم: "+v("wName")+"\nالجوال: "+v("wPhone");
+  window.open(wa(msg),"_blank");$("wNote").textContent="تم تجهيز الطلب في واتساب، اضغط إرسال هناك."});
 ["topWa","floatWa"].forEach(function(id){var a=document.getElementById(id);a.href=gen;a.target="_blank";a.rel="noopener"});
 var $=function(i){return document.getElementById(i)};
 cars.forEach(function(c,i){if(c.status==="hidden"||c.status==="sold")return;var o=document.createElement("option");o.value=i;o.textContent=c.b+" "+c.n+" "+c.y;$("cCar").appendChild(o)});
@@ -468,15 +537,22 @@ render("all");
     var inn=el("div","in");dlg.appendChild(inn);
     inn.appendChild(el("h2","","لوحة التحكم"));
     inn.appendChild(el("p","meta","عدّل السعر أو الحالة أو الألوان، أو أضف سيارة جديدة. ثم اضغط حفظ ونشر ويظهر التغيير للعملاء مباشرة."));
+    var S0=(DATA&&DATA.set)||{},set={banks:(S0.banks||[]).slice()};
+    var tools=el("div","tools");var q=el("input");q.type="search";q.placeholder="اكتب اسم السيارة، مثال: برادو";tools.appendChild(lab("بحث",q));
+    var stF=sel([["all","الكل"],["","المتوفرة"],["sold","المباعة"],["hidden","المخفية"]],"all",function(){filt()});tools.appendChild(lab("عرض",stF));
+    var cnt=el("div","cnt");cnt.style.flexBasis="100%";tools.appendChild(cnt);inn.appendChild(tools);
+    function filt(){var v=q.value.trim(),f=stF.value;box.querySelectorAll(".row1[data-q]").forEach(function(r){var ok=(!v||r.dataset.q.indexOf(v)>-1)&&(f==="all"||r.dataset.s===f);r.hidden=!ok})}
+    q.addEventListener("input",filt);
+    function counts(){var a=0,s=0,h=0;st.concat(xs.filter(function(m){return !m.del&&m.n})).forEach(function(m){if(m.status==="sold")s++;else if(m.status==="hidden")h++;else a++});cnt.innerHTML="";[["متوفرة",a],["مباعة",s],["مخفية",h]].forEach(function(p){cnt.appendChild(el("span","",p[0]+": "+p[1]))})}
     var box=el("div","");box.style.display="flex";box.style.flexDirection="column";box.style.gap="12px";inn.appendChild(box);
     var bar=el("div","bar");var sv=el("button","btn","حفظ ونشر");sv.type="button";var cn=el("button","btn alt","إغلاق");cn.type="button";var ms=el("span","msg","");bar.appendChild(sv);bar.appendChild(cn);bar.appendChild(ms);inn.appendChild(bar);
     function setBusy(d){busy+=d;sv.disabled=busy>0;ms.textContent=busy>0?"جاري رفع الصور...":""}
     function common(r,m){
       r.appendChild(lab("السعر (ر.س)",(function(){var i=inp("number",m.price,function(v){m.price=v});i.min="0";i.inputMode="numeric";i.dir="ltr";return i})()));
-      r.appendChild(lab("الحالة",sel([["","متوفرة"],["sold","تم البيع"],["hidden","مخفية عن الموقع"]],m.status,function(v){m.status=v})));
+      r.dataset.s=m.status||"";if(m.status==="sold")r.classList.add("sold3");r.appendChild(lab("الحالة",sel([["","متوفرة"],["sold","تم البيع"],["hidden","مخفية عن الموقع"]],m.status,function(v){m.status=v;r.dataset.s=v;r.classList.toggle("sold3",v==="sold");counts()})));
       var bi=inp("text",m.badge,function(v){m.badge=v.trim()});bi.maxLength=24;r.appendChild(lab("شارة (مثل: عرض خاص)",bi));
-      var cw=el("div","cols");Object.keys(COLHEX).forEach(function(n){var b=el("button","chip");b.type="button";var dt=el("span","dot");dt.style.background=COLHEX[n];b.appendChild(dt);b.appendChild(document.createTextNode(n));b.setAttribute("aria-pressed",m.colors.indexOf(n)>-1?"true":"false");b.addEventListener("click",function(){var k=m.colors.indexOf(n);if(k>-1)m.colors.splice(k,1);else m.colors.push(n);b.setAttribute("aria-pressed",k>-1?"false":"true");rcp()});cw.appendChild(b)});r.appendChild(cw);
-      var cp=el("div","");cp.style.cssText="grid-column:1/-1;display:flex;flex-direction:column;gap:8px";r.appendChild(cp);
+      var cw=el("div","cols");Object.keys(COLHEX).forEach(function(n){var b=el("button","chip");b.type="button";var dt=el("span","dot");dt.style.background=COLHEX[n];b.appendChild(dt);b.appendChild(document.createTextNode(n));b.setAttribute("aria-pressed",m.colors.indexOf(n)>-1?"true":"false");b.addEventListener("click",function(){var k=m.colors.indexOf(n);if(k>-1)m.colors.splice(k,1);else m.colors.push(n);b.setAttribute("aria-pressed",k>-1?"false":"true");rcp()});cw.appendChild(b)});var dtl=el("details");dtl.appendChild(el("summary","","الألوان وصور كل لون"));r.appendChild(dtl);dtl.appendChild(cw);
+      var cp=el("div","");cp.style.cssText="display:flex;flex-direction:column;gap:8px;margin-top:8px";dtl.appendChild(cp);
       function rcp(){cp.innerHTML="";if(!m.cimgs)m.cimgs={};if(m.colors.length)cp.appendChild(el("div","meta","صور كل لون (اختيارية). إذا ما أضفت صورًا للون تظهر الصور الرئيسية للسيارة."));m.colors.forEach(function(n){if(!m.cimgs[n])m.cimgs[n]=[];var l=el("label","","صور اللون: "+n);l.appendChild(photos(m.cimgs[n]));cp.appendChild(l)})}rcp();
     }
     function photos(arr){
@@ -485,6 +561,23 @@ render("all");
       if(assets){var f=el("input");f.type="file";f.accept="image/*";f.multiple=true;f.addEventListener("change",function(){var fs=Array.prototype.slice.call(f.files);if(!fs.length)return;setBusy(1);fs.reduce(function(p,file){return p.then(function(){return shrink(file).then(function(b){return assets.upload(b)}).then(function(r){arr.push(r.url)})})},Promise.resolve()).catch(function(){ms.textContent="تعذر رفع إحدى الصور"}).then(function(){busy--;sv.disabled=busy>0;ms.textContent=busy>0?"جاري رفع الصور...":"";var nw=photos(arr);w.replaceWith(nw)})});w.appendChild(f)}
       else w.appendChild(el("span","msg","رفع الصور غير متاح لحسابك"));
       return w}
+    function adText(b,n,y,colors,specs){
+      var L=[];L.push("للبيع "+b+" "+n+" موديل "+y+" جديد");L.push("");
+      if(colors&&colors.length)L.push("الألوان المتوفرة: "+colors.join("، "));
+      var ks=[];(specs||[]).forEach(function(r){if(r instanceof Array&&ks.length<6&&/الوقود|المحرك|القوة|ناقل|الدفع|استهلاك/.test(r[0]))ks.push("• "+r[0]+": "+r[1])});
+      if(ks.length){L.push("");L.push("المواصفات:");L=L.concat(ks)}
+      var fs=[];(specs||[]).forEach(function(r){if(typeof r==="string"&&fs.length<6)fs.push("• "+r)});
+      if(fs.length){L.push("");L.push("من المزايا:");L=L.concat(fs)}
+      L.push("");L.push("طرق الدفع: كاش، أقساط، دفعتين، تأجير منتهي بالتمليك");
+      if(set.banks.length)L.push("جهات التمويل: "+set.banks.join("، "));
+      L.push("نشحن لجميع مدن المملكة");L.push("");
+      L.push(SHOP);L.push("للتواصل واتساب: 0554378456");
+      L.push("الصور والتفاصيل في موقعنا: "+SITE);
+      return L.join("\n")}
+    function adBox(r,get){var bt=el("button","btn alt","نص إعلان حراج");bt.type="button";var w=el("div","ad");w.hidden=true;var ta=el("textarea");var row=el("div","row2");var cp=el("button","btn","نسخ النص");cp.type="button";row.appendChild(cp);w.appendChild(ta);w.appendChild(row);
+      bt.addEventListener("click",function(){if(w.hidden){ta.value=get();w.hidden=false;bt.textContent="إخفاء الإعلان"}else{w.hidden=true;bt.textContent="نص إعلان حراج"}});
+      cp.addEventListener("click",function(){var ok=function(){cp.textContent="تم النسخ ✓";setTimeout(function(){cp.textContent="نسخ النص"},2000)};if(navigator.clipboard)navigator.clipboard.writeText(ta.value).then(ok,function(){ta.select();document.execCommand("copy");ok()});else{ta.select();document.execCommand("copy");ok()}});
+      r.appendChild(bt);r.appendChild(w)}
     function draw(){
       box.innerHTML="";
       var add=el("button","btn","+ إضافة سيارة جديدة");add.type="button";add.addEventListener("click",function(){xs.push({b:"تويوتا",n:"",y:"2026",type:"سيدان",price:"",status:"",badge:"",colors:DEFCOL.slice(),imgs:[],cimgs:{},stext:"",del:false});draw();var ta2=box.querySelectorAll("textarea");var lt=ta2[ta2.length-1];if(lt&&lt.scrollIntoView)lt.scrollIntoView({block:"center"})});
@@ -492,19 +585,21 @@ render("all");
       if(xs.some(function(m){return !m.del}))box.appendChild(el("h3","","السيارات المضافة من اللوحة"));
       xs.forEach(function(m,j){
         if(m.del)return;
-        var r=el("div","row1");r.appendChild(el("h3","",m.n?m.b+" "+m.n:"سيارة جديدة"));
+        var r=el("div","row1");r.dataset.q=m.b+" "+m.n;r.appendChild(el("h3","",m.n?m.b+" "+m.n:"سيارة جديدة"));
         r.appendChild(lab("الماركة",sel(BRANDS,m.b,function(v){m.b=v})));
         var ni=inp("text",m.n,function(v){m.n=v.trim()},"مثال: كورولا XLI");r.appendChild(lab("الاسم والفئة",ni));
         r.appendChild(lab("الموديل",inp("text",m.y,function(v){m.y=v.trim()})));
         r.appendChild(lab("النوع",sel(TYPES,m.type,function(v){m.type=v})));
         common(r,m);
         var ta=el("textarea");ta.rows=9;ta.value=m.stext;ta.placeholder="اكتب كل مواصفة في سطر.\n## المحرك والأداء\nالمحرك: 2.5 لتر\nالقوة القصوى: 201 حصان\nفتحة سقف بانورامية";ta.style.cssText="font:inherit;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%";ta.addEventListener("input",function(){m.stext=ta.value});
-        r.appendChild(lab("المواصفات (سطر ## للعنوان، و«الاسم: القيمة» للأرقام، وأي سطر عادي يظهر بعلامة ✓)",ta,true));
+        r.appendChild(lab("المواصفات (سطر ## للعنوان، و«الاسم: القيمة» للأرقام، وأي سطر عادي يظهر بعلامة ✓)",ta,true));adBox(r,function(){return adText(m.b,m.n,m.y||"2026",m.colors,parseSpecs(m.stext))});
         var pl=el("label","","الصور (الأولى هي الصورة الرئيسية)");pl.style.gridColumn="1/-1";pl.appendChild(photos(m.imgs));r.appendChild(pl);
         var d=el("button","btn alt","حذف السيارة");d.type="button";var armed=false;d.addEventListener("click",function(){if(!armed){armed=true;d.textContent="اضغط مرة ثانية للتأكيد";return}m.del=true;draw()});r.appendChild(d);
         box.appendChild(r)});
       var h1=el("h3","","السيارات الحالية");box.appendChild(h1);
-      base.forEach(function(c,i){var r=el("div","row1");r.appendChild(el("h3","",c.b+" "+c.n+" "+c.y));common(r,st[i]);box.appendChild(r)});
+      base.forEach(function(c,i){var r=el("div","row1");r.dataset.q=c.b+" "+c.n+" "+c.y;r.appendChild(el("h3","",c.b+" "+c.n+" "+c.y));common(r,st[i]);adBox(r,function(){return adText(c.b,c.n,c.y,st[i].colors,c.specs)});box.appendChild(r)});
+      var sr=el("div","row1");sr.appendChild(el("h3","","إعدادات الموقع"));var bt=el("textarea");bt.rows=4;bt.value=set.banks.join("\n");bt.placeholder="اكتب كل جهة في سطر، مثال:\nبنك الراجحي\nبنك الرياض";bt.style.cssText="font:inherit;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%";bt.addEventListener("input",function(){set.banks=bt.value.split("\n").map(function(x){return x.trim()}).filter(Boolean)});sr.appendChild(lab("جهات التمويل اللي تظهر في قسم طرق الدفع (اتركها فاضية لإخفائها)",bt,true));box.appendChild(sr);
+      counts();filt();
     }
     draw();
     document.body.appendChild(dlg);
@@ -516,7 +611,7 @@ render("all");
       base.forEach(function(c,i){var s=st[i],o={};if(+s.price>0)o.price=+s.price;if(s.status)o.status=s.status;if(s.badge)o.badge=s.badge;var d=(s.colors.length?s.colors:DEFCOL);if(d.join("|")!==DEFCOL.join("|"))o.colors=d;var bc={};try{bc=JSON.parse(c._bc||"{}")}catch(e){}var ci={};Object.keys(Object.assign({},s.cimgs,bc)).forEach(function(col){if(s.colors.indexOf(col)<0)return;var a=s.cimgs[col]||[];if(JSON.stringify(a)!==JSON.stringify(bc[col]||[]))ci[col]=a});if(Object.keys(ci).length)o.cimgs=ci;if(Object.keys(o).length)ov[ck(c)]=o});
       var extra=[];
       xs.forEach(function(m){if(m.del||!m.n)return;var o={b:m.b,n:m.n,y:m.y||"2026",type:m.type};if(+m.price>0)o.price=+m.price;if(m.status)o.status=m.status;if(m.badge)o.badge=m.badge;var d=(m.colors.length?m.colors:DEFCOL);if(d.join("|")!==DEFCOL.join("|"))o.colors=d;if(m.imgs.length)o.imgs=m.imgs;var ci={};m.colors.forEach(function(col){var a=(m.cimgs||{})[col];if(a&&a.length)ci[col]=a});if(Object.keys(ci).length)o.cimgs=ci;var sp=parseSpecs(m.stext);if(sp.length)o.specs=sp;extra.push(o)});
-      window.__LASTDATA={ov:ov,extra:extra};var data=esc(JSON.stringify({ov:ov,extra:extra}));
+      window.__LASTDATA={ov:ov,extra:extra,set:set};var data=esc(JSON.stringify({ov:ov,extra:extra,set:set}));
       var tpl=esc(JSON.stringify(TPL));
       var html=SKEL+"\n"+TPL.replace(M1,function(){return data}).replace(M2,function(){return tpl})+"\n</body></html>";
       sv.disabled=true;ms.textContent="جاري النشر...";
@@ -606,7 +701,7 @@ render("all");
   var started=false;
   function go(){if(started)return;started=true;(0,eval)(document.getElementById("mainjs").textContent);adminBoot()}
   setTimeout(go,4000);
-  getDoc("site/data").then(function(d){try{var j=str(d,"json");if(j)window.__LIVE=JSON.parse(j)}catch(e){}go()});
+  getDoc("site/data").then(function(d){try{var j=str(d,"json"),f=d&&d.fields&&d.fields.at,at=f?Number(f.integerValue||f.doubleValue||0):0;if(j&&at>(window.__BUILT||0))window.__LIVE=JSON.parse(j)}catch(e){}go()});
 })();
 
 </script>
